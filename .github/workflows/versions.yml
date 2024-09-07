@@ -1,0 +1,32 @@
+name: Update Version
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.x'
+
+      - name: Update Assembly Version
+        run: |
+          VERSION=$(echo "${GITHUB_REF#refs/tags/v}")
+          sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>$VERSION<\/AssemblyVersion>/" TDU2SaveGameManager.csproj
+          sed -i "s/<FileVersion>.*<\/FileVersion>/<FileVersion>$VERSION<\/FileVersion>/" TDU2SaveGameManager.csproj
+          sed -i "s/<InformationalVersion>.*<\/InformationalVersion>/<InformationalVersion>$VERSION<\/InformationalVersion>/" TDU2SaveGameManager.csproj
+
+      - name: Commit updated version
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git commit -am "Update version to $VERSION"
+          git push
