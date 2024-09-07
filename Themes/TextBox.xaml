@@ -1,0 +1,95 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<!-- Resource dictionary entries should be defined here. -->
+	<LinearGradientBrush x:Key="TextBoxBorder" EndPoint="0,20" StartPoint="0,0" MappingMode="Absolute">
+		<GradientStop Color="#ABADB3" Offset="0.05"/>
+		<GradientStop Color="#E2E3EA" Offset="0.07"/>
+		<GradientStop Color="#E3E9EF" Offset="1"/>
+	</LinearGradientBrush>
+	<SolidColorBrush x:Key="NormalBackround" Color="#424242"/>
+    <SolidColorBrush x:Key="FocusedBorder" Color="#A12B2B"/>
+    <SolidColorBrush x:Key="Hover" Color="#A12B2B"/>
+    <SolidColorBrush x:Key="Foreground" Color="#FFD3D3D3"/>
+
+    <Style BasedOn="{x:Null}" TargetType="{x:Type TextBox}">
+        <Setter Property="Foreground" Value="{StaticResource Foreground}"/>
+		<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource TextBoxBorder}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource Hover}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="5,2"/>
+		<Setter Property="Margin" Value="5"/>
+		<Setter Property="AllowDrop" Value="true"/>
+		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+		<!--<Setter Property="Height" Value="22"/>-->
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type TextBox}">
+					<Border x:Name="Bd" Background="{StaticResource NormalBackround}" CornerRadius="2">
+                        <Border.Effect>
+                            <DropShadowEffect Color="Black" Direction="300" ShadowDepth="5" Opacity="0.6" BlurRadius="7"/>
+                        </Border.Effect>
+                        <ScrollViewer SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost"/>
+					</Border>
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsEnabled" Value="false">
+							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+							<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+						</Trigger>
+						<Trigger Property="IsKeyboardFocused" Value="true">
+							<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource FocusedBorder}"/>
+							<Setter TargetName="Bd" Property="BorderThickness" Value="0"/>
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+	
+	<Style x:Key="{x:Type RichTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" TargetType="{x:Type RichTextBox}">
+        <Style.Resources>
+            <Style x:Key="{x:Type FlowDocument}"
+           TargetType="{x:Type FlowDocument}">
+                <Setter Property="OverridesDefaultStyle"
+            Value="true"/>
+            </Style>
+        </Style.Resources>
+    </Style>
+	
+    <!-- SimpleStyles: PasswordBox -->
+    <Style x:Key="{x:Type PasswordBox}" TargetType="{x:Type PasswordBox}">
+        <Setter Property="Foreground" Value="LightGray"/>
+		<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource TextBoxBorder}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="AllowDrop" Value="true"/>
+		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type PasswordBox}">
+                    <Border x:Name="Bd" Background="{StaticResource NormalBackround}" CornerRadius="3">
+						<ScrollViewer SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" x:Name="PART_ContentHost"/>
+					</Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+							<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+						</Trigger>
+						<Trigger Property="IsKeyboardFocused" Value="true">
+							<Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource FocusedBorder}"/>
+							<Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+						</Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+	
+	
+	 
+
+
+</ResourceDictionary>
