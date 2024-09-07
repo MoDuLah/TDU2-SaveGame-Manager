@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +18,8 @@ namespace TDU2SaveGameManager
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+            ApplicationTitle = $"TDU2 Save Game Manager - Version {GetAssemblyVersion()}";
 
             backupPath = Properties.Settings.Default.BackupFolderPath;
 
@@ -275,6 +278,13 @@ namespace TDU2SaveGameManager
                 // Reload the backups list for the new path
                 LoadBackups();
             }
+        }
+        public required string ApplicationTitle { get; set; }
+
+        private string GetAssemblyVersion()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            return version != null ? version.ToString() : "Unknown Version";
         }
     }
 }

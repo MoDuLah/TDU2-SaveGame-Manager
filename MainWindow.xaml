@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Background="{x:Null}" SizeToContent="WidthAndHeight"
         Opacity="{Binding Source={x:Static p:Settings.Default}, Path=MainWindowOpacity, Mode=OneWay}" 
-        Title="SaveGameManager" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Images/Save.png">
+        Title="{Binding ApplicationTitle}" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Images/Save.png">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=BGOpacity, Mode=OneWay}"/>
