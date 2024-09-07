@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.WindowsAPICodePack.Dialogs; // Add reference to Windows API Code Pack
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace TDU2SaveGameManager
 {
@@ -144,7 +144,7 @@ namespace TDU2SaveGameManager
         {
             if (BackupsListBox.SelectedItem is string backupFileName)
             {
-                MessageBox.Show(backupPath);
+                //MessageBox.Show(backupPath);
                 string backupFile = Path.Combine(backupPath, backupFileName);
                 string restoreDir = Path.Combine(userDocumentsPath, $"savegame");
                 //MessageBox.Show($"backupFile: " + backupFile + "\nRestore Dir: " + restoreDir);
