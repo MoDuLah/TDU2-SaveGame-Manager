@@ -6,19 +6,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:p="clr-namespace:TDU2SaveGameManager.Properties"
         xmlns:local="clr-namespace:SaveGameManager"
-        mc:Ignorable="d"
+        mc:Ignorable="d" FontSize="16"
         Background="{x:Null}" SizeToContent="WidthAndHeight"
         Opacity="{Binding Source={x:Static p:Settings.Default}, Path=MainWindowOpacity, Mode=OneWay}" 
-        Title="{Binding ApplicationTitle}" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Images/Save.png">
+        Title="{Binding ApplicationTitle}" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.Background>
-            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=BGOpacity, Mode=OneWay}"/>
+            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=BGOpacity, Mode=OneWay}" Stretch="Fill" TileMode="FlipX"/>
         </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="Auto" MinWidth="300" MaxWidth="300"/>
-            <ColumnDefinition Width="Auto" MaxWidth="100"/>
-            <ColumnDefinition Width="Auto" MinWidth="300" MaxWidth="300"/>
+            <ColumnDefinition Width="Auto" MinWidth="300" />
+            <ColumnDefinition Width="Auto" MinWidth="130" MaxWidth="130"/>
+            <ColumnDefinition Width="Auto" MinWidth="300" />
             <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -32,27 +32,64 @@
         </Grid.RowDefinitions>
 
         <!-- Title and path for FoldersListBox -->
-        <DockPanel Grid.Column="1" Grid.Row="1" Background="#CCFFFFFF">
-            <TextBlock DockPanel.Dock="Top" Text="Folders" Margin="10,10,0,0" FontWeight="Bold" FontSize="16" Foreground="Gray"/>
-            <TextBlock x:Name="SaveLocation" DockPanel.Dock="Bottom" Text="{Binding}" Margin="10,0,0,0" Grid.Column="0" Grid.Row="0" FontWeight="Bold" FontSize="8" Foreground="Gray"/>
-        </DockPanel>
-        <Button Grid.Column="2" Grid.Row="1" Margin="10" Click="ChooseBackupFolderButton_Click" HorizontalAlignment="Center">
-            <Image Source="/Images/Folder.png"/>
-        </Button>
+        <GroupBox Header="Save Game Folders" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
+            <StackPanel>
+                <TextBlock x:Name="SaveLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
+                <ListBox x:Name="FoldersListBox" Background="{x:Null}" MinHeight="200"/>
+            </StackPanel>
+        </GroupBox>
         <!-- Title and path for BackupsListBox -->
-        <DockPanel Grid.Column="3" Grid.Row="1" Background="#CCFFFFFF">
-            <TextBlock DockPanel.Dock="Top" Text="Backups" Margin="10,10,0,0" FontWeight="Bold" FontSize="16" Foreground="Gray"/>
-            <TextBlock DockPanel.Dock="Bottom" x:Name="BackupLocation" Text="{Binding}" Margin="10,0,0,0" FontWeight="Bold" FontSize="8" Foreground="Gray"/>
-        </DockPanel>
-        <ListBox x:Name="FoldersListBox" SelectedIndex="0" Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Margin="10" Background="#CCFFFFFF"/>
-        <ListBox x:Name="BackupsListBox" Grid.Column="3" Grid.Row="2" Grid.RowSpan="2" Margin="10" Background="#CCFFFFFF"/>
-
-        <Button Content="Backup" Grid.Column="2" Grid.Row="2" Margin="10" Click="BackupButton_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-        <Button Content="Restore" Grid.Column="2" Grid.Row="3" Margin="10" Click="RestoreButton_Click" HorizontalAlignment="Center"/>
-
-        <DockPanel x:Name="ErrorPanel" Grid.Column="1" Visibility="Collapsed" Grid.Row="4" Grid.ColumnSpan="3" LastChildFill="True" MaxWidth="700" Background="#CCD3D3D3" Margin="10">
+        <GroupBox Header="Backups" Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
+            <StackPanel>
+                <TextBlock x:Name="BackupLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=BackupFolderPath, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=backupFolderPath, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
+                <ListBox x:Name="BackupsListBox" Background="{x:Null}" MinHeight="200"/>
+            </StackPanel>
+        </GroupBox>
+        <StackPanel Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" >
+            <Button Margin="0,10,0,10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Select Backup Destination"  Click="Button_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Browse" VerticalAlignment="Center"/>
+                    <Image Width="24" MouseLeftButtonDown="Image_MouseLeftButtonDown" Focusable="False" Panel.ZIndex="2" >
+                    <Image.Effect>
+                        <DropShadowEffect/>
+                    </Image.Effect>
+                    <Image.Style>
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Source" Value="Images/Folder.png"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Source" Value="Images/Folder_over.png"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                 </Image>
+                </StackPanel>
+            </Button>
+            <Button Margin="0,10,0,10" Click="BackupButton_Click" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Backup" VerticalAlignment="Center"/>
+                <Image Source="/Images/Save.png" Width="24">
+                    <Image.Effect>
+                        <DropShadowEffect/>
+                    </Image.Effect>
+                </Image>
+                </StackPanel>
+        </Button>
+        <Button Margin="0,10,0,0" Click="RestoreButton_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Restore" VerticalAlignment="Center"/>
+                <Image Source="/Images/Restore.png" Width="24">
+                    <Image.Effect>
+                        <DropShadowEffect/>
+                    </Image.Effect>
+                </Image>
+            </StackPanel>
+        </Button>
+        </StackPanel>
+        <DockPanel x:Name="ErrorPanel" Grid.Column="1" Visibility="Visible" Grid.Row="4" Grid.ColumnSpan="3" LastChildFill="True" MaxWidth="700" Background="#CCD3D3D3" Margin="10">
             <!-- ProgressBar for showing the progress -->
-            <ProgressBar DockPanel.Dock="Top" x:Name="ProgressBar" Margin="10" Height="20" Visibility="Visible" Minimum="0" Maximum="100" Value="0"/>
+            <ProgressBar DockPanel.Dock="Top" x:Name="ProgressBar" Margin="10" Height="20" Visibility="Collapsed" Minimum="0" Maximum="100" Value="0"/>
             <!-- Error message -->
             <TextBlock DockPanel.Dock="Bottom" x:Name="ErrorTextBlock" Text=" " Margin="10" Foreground="Black" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
         </DockPanel>

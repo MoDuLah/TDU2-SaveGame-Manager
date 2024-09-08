@@ -11,7 +11,7 @@ namespace TDU2SaveGameManager
 {
     public partial class MainWindow : Window
     {
-        private string userDocumentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Eden Games", "Test Drive Unlimited 2");
+        private string userDocumentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Eden Games", "Test Drive Unlimited 2"); //
         private readonly string defaultBackupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
         private string backupPath; // Use a variable to store the backup path
 
@@ -21,7 +21,7 @@ namespace TDU2SaveGameManager
             DataContext = this;
             ApplicationTitle = $"TDU2 Save Game Manager - Version {GetAssemblyVersion()}";
 
-            backupPath = Properties.Settings.Default.BackupFolderPath;
+            backupPath = Properties.Settings.Default.backupFolderPath;
 
             // Validate if the saved backup path is valid and writable
             if (!Directory.Exists(backupPath) || !HasWritePermission(backupPath))
@@ -29,10 +29,10 @@ namespace TDU2SaveGameManager
                 ShowError("The saved backup folder is invalid or not writable. Using the default backup folder.");
                 // Fallback to the default backup path
                 backupPath = defaultBackupPath;
-                Properties.Settings.Default.BackupFolderPath = backupPath;
+                Properties.Settings.Default.backupFolderPath = backupPath;
                 Properties.Settings.Default.Save();
             }
-
+            ErrorPanel.Visibility = Visibility.Collapsed;
             LoadFolders();
             LoadBackups();
         }
@@ -88,15 +88,20 @@ namespace TDU2SaveGameManager
             {
                 BackupsListBox.Items.Add(Path.GetFileName(file));
             }
+            // Set the last item as the default selection
+            if (BackupsListBox.Items.Count > 0)
+            {
+                BackupsListBox.SelectedIndex = BackupsListBox.Items.Count - 1; // Select the last item
+            }
         }
 
-        private void BackupButton_Click(object sender, RoutedEventArgs e)
+        private async void BackupButton_Click(object sender, RoutedEventArgs e)
         {
             if (FoldersListBox.SelectedItem is string sourceDirName)
             {
                 string sourceDir = Path.Combine(userDocumentsPath, sourceDirName);
                 string datetime = DateTime.Now.ToString("yyyy.MM.dd_HH.mm");
-                string archivePath = Path.Combine(backupPath, $"backup_{datetime}.tar");
+                string archivePath = Path.Combine(backupPath, $"{sourceDirName}_backup_{datetime}.tar");
 
                 var startInfo = new ProcessStartInfo
                 {
@@ -110,21 +115,45 @@ namespace TDU2SaveGameManager
 
                 try
                 {
+                    // Show the progress bar and error panel, and simulate a 2-second loading time
                     ProgressBar.Visibility = Visibility.Visible;
+                    ProgressBar.IsIndeterminate = true;
+                    ErrorPanel.Visibility = Visibility.Visible;
 
+                    // Wait for 2 seconds before executing the backup
+                    await Task.Delay(2000);
+
+                    // Proceed with backup after the 2-second delay
                     using (var process = Process.Start(startInfo))
                     {
-                        process.WaitForExit();
-                        if (process.ExitCode == 0)
+                        if (process != null) // Ensure the process is not null
                         {
-                            ShowError("Backup successful!");
-                            LoadBackups();
+                            process.WaitForExit();
+                            if (process.ExitCode == 0)
+                            {
+                                LoadBackups();
+
+                                // Select the last backup in the list after loading backups
+                                if (BackupsListBox.Items.Count > 0)
+                                {
+                                    BackupsListBox.SelectedIndex = BackupsListBox.Items.Count - 1;
+                                }
+
+                                // Show success message after progress bar is hidden
+                                await Task.Delay(500); // Optional small delay for smooth transition
+                                ShowError("Backup successful!");
+                            }
+                            else
+                            {
+                                ShowError($"Backup failed: {process.StandardError.ReadToEnd()}");
+                            }
                         }
                         else
                         {
-                            ShowError($"Backup failed: {process.StandardError.ReadToEnd()}");
+                            ShowError("Failed to start the backup process.");
                         }
                     }
+
                 }
                 catch (Exception ex)
                 {
@@ -132,9 +161,11 @@ namespace TDU2SaveGameManager
                 }
                 finally
                 {
+                    // Hide the progress bar and reset selections
                     ProgressBar.Visibility = Visibility.Collapsed;
+                    ProgressBar.IsIndeterminate = false;
+                    ErrorPanel.Visibility = Visibility.Collapsed;
                     FoldersListBox.SelectedItem = null;
-                    BackupsListBox.SelectedItem = null;
                 }
             }
             else
@@ -143,14 +174,15 @@ namespace TDU2SaveGameManager
             }
         }
 
+
+
         private async void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
             if (BackupsListBox.SelectedItem is string backupFileName)
             {
-                //MessageBox.Show(backupPath);
                 string backupFile = Path.Combine(backupPath, backupFileName);
-                string restoreDir = Path.Combine(userDocumentsPath, $"savegame");
-                //MessageBox.Show($"backupFile: " + backupFile + "\nRestore Dir: " + restoreDir);
+                string restoreDir = Path.Combine(userDocumentsPath, "savegame");
+
                 if (!Directory.Exists(restoreDir))
                 {
                     ShowError($"Restore directory does not exist: {restoreDir}");
@@ -159,14 +191,12 @@ namespace TDU2SaveGameManager
 
                 if (!HasWritePermission(restoreDir))
                 {
-                    ShowError($"You do not have write permissions for: {restoreDir}. Please ensure you have the necessary permissions or run the application as an administrator. Or attempt a manual extraction of the data to the savegame folder. Both folders openning in 5 seconds.");
+                    ShowError($"You do not have write permissions for: {restoreDir}. Please ensure you have the necessary permissions or run the application as an administrator. Or attempt a manual extraction of the data to the savegame folder. Both folders will open in 5 seconds.");
                     await Task.Delay(5000);
 
-                    // Open the restore directory
+                    // Open the backup and restore directories in Windows File Explorer
+                    Process.Start("explorer.exe", backupFile);
                     Process.Start("explorer.exe", restoreDir);
-
-                    // Open the backup file
-                    Process.Start("explorer.exe", $"/select,\"{backupFile}\"");
 
                     return;
                 }
@@ -183,29 +213,42 @@ namespace TDU2SaveGameManager
 
                 try
                 {
+                    ErrorPanel.Visibility = Visibility.Visible;
                     ProgressBar.Visibility = Visibility.Visible;
                     ProgressBar.IsIndeterminate = true;
 
+                    // Wait for 2 seconds before starting the restore process
+                    await Task.Delay(2000);
+
                     await Task.Run(() =>
                     {
-                        using (var process = Process.Start(startInfo))
+                        var process = Process.Start(startInfo);
+                        if (process != null)
                         {
                             process.WaitForExit();
                         }
+                        else
+                        {
+                            ShowError("Failed to start the process.");
+                        }
                     });
 
-                    ShowError("Restore successful!");
                     LoadFolders();
                     LoadBackups();
+
+                    // Show success message after progress bar is hidden
+                    await Task.Delay(500); // Optional small delay for smooth transition
+                    ShowError("Restore successful!");
                 }
                 catch (Exception ex)
                 {
-                    ShowError($"An error occurred during restore: {ex.Message}.");
+                    ShowError($"An error occurred during restore: {ex.Message}");
                 }
                 finally
                 {
                     ProgressBar.Visibility = Visibility.Collapsed;
                     ProgressBar.IsIndeterminate = false;
+                    ErrorPanel.Visibility = Visibility.Collapsed;
                     FoldersListBox.SelectedItem = null;
                     BackupsListBox.SelectedItem = null;
                 }
@@ -215,7 +258,6 @@ namespace TDU2SaveGameManager
                 ShowError("Please select a backup to restore.");
             }
         }
-
 
         private bool HasWritePermission(string directoryPath)
         {
@@ -238,9 +280,9 @@ namespace TDU2SaveGameManager
 
         private async void ShowError(string message)
         {
+            ErrorPanel.Visibility = Visibility.Visible;
             string formattedMessage = message.Replace(". ", "." + Environment.NewLine);
             ErrorTextBlock.Text = formattedMessage;
-            ErrorPanel.Visibility = Visibility.Visible;
             await Task.Delay(5000);
             ErrorPanel.Visibility = Visibility.Collapsed;
         }
@@ -268,12 +310,13 @@ namespace TDU2SaveGameManager
                 }
 
                 // Save the valid selected path to application settings
-                Properties.Settings.Default.BackupFolderPath = selectedPath;
+                Properties.Settings.Default.backupFolderPath = selectedPath;
                 Properties.Settings.Default.Save();
 
                 // Update the backupPath variable and BackupLocation TextBlock
                 backupPath = selectedPath;
-                BackupLocation.Text = $"({backupPath})";
+                BackupLocation.Text = Properties.Settings.Default.backupFolderPath;
+                BackupLocation.ToolTip = Properties.Settings.Default.backupFolderPath;
 
                 // Reload the backups list for the new path
                 LoadBackups();
@@ -285,6 +328,41 @@ namespace TDU2SaveGameManager
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             return version != null ? version.ToString() : "Unknown Version";
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                string selectedPath = dialog.FileName;
+
+                // Validate if the directory exists
+                if (!Directory.Exists(selectedPath))
+                {
+                    ShowError("The selected directory does not exist.");
+                    return;
+                }
+
+                // Validate if the application has write permissions
+                if (!HasWritePermission(selectedPath))
+                {
+                    ShowError("You do not have write permissions for the selected directory.");
+                    return;
+                }
+
+                // Save the valid selected path to application settings
+                Properties.Settings.Default.backupFolderPath = selectedPath;
+                Properties.Settings.Default.Save();
+
+                // Update the backupPath variable and BackupLocation TextBlock
+                backupPath = selectedPath;
+                BackupLocation.Text = $"({backupPath})";
+
+                // Reload the backups list for the new path
+                LoadBackups();
+            }
         }
     }
 }

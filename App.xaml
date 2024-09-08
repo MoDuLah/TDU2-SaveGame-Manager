@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="Themes\Menu.xaml"/>
                 <ResourceDictionary Source="Themes\ScrollBar.xaml"/>
                 <ResourceDictionary Source="Themes\ListBox.xaml" />
+                <ResourceDictionary Source="Themes\ListView.xaml" />
                 <!--<ResourceDictionary Source="Themes\ProgressBar.xaml"/>-->
                 <ResourceDictionary Source="Themes\ToggleButton.xaml"/>
                 <ResourceDictionary Source="Themes\ToolTip.xaml"/>

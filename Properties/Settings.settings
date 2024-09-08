@@ -11,11 +11,11 @@
     <Setting Name="defaultPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="BackupFolderPath" Type="System.String" Scope="User">
+    <Setting Name="backupFolderPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">null</Value>
     </Setting>
     <Setting Name="defaultSaveFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">null</Value>
     </Setting>
   </Settings>
 </SettingsFile>

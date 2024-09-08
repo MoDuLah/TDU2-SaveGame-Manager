@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <StartupObject></StartupObject>
-    <ApplicationIcon>Save.ico</ApplicationIcon>
+    <ApplicationIcon>TDU2.ico</ApplicationIcon>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <InformationalVersion>1.0.0.0</InformationalVersion>
@@ -16,12 +16,13 @@
   <ItemGroup>
     <None Remove="Images\BG.png" />
     <None Remove="Images\Folder.png" />
+    <None Remove="Images\Folder_over.png" />
     <None Remove="Images\Restore.png" />
     <None Remove="Images\Save.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Save.ico" />
+    <Content Include="TDU2.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +32,7 @@
   <ItemGroup>
     <Resource Include="Images\BG.png" />
     <Resource Include="Images\Folder.png" />
+    <Resource Include="Images\Folder_over.png" />
     <Resource Include="Images\Restore.png" />
     <Resource Include="Images\Save.png" />
   </ItemGroup>

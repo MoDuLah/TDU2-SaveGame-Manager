@@ -62,18 +62,18 @@ namespace TDU2SaveGameManager.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("null")]
-        public string BackupFolderPath {
+        public string backupFolderPath {
             get {
-                return ((string)(this["BackupFolderPath"]));
+                return ((string)(this["backupFolderPath"]));
             }
             set {
-                this["BackupFolderPath"] = value;
+                this["backupFolderPath"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("null")]
         public string defaultSaveFolder {
             get {
                 return ((string)(this["defaultSaveFolder"]));
