@@ -1,7 +1,8 @@
 # TDU2 SaveGame Manager
 ## Overview
-The TDU2 SaveGame Manager is a tool designed to manage, backup, and restore save game files for the game Test Drive Unlimited 2.
-It provides an intuitive interface for players to manage their savegame data, back it up, and easily restore backups. The tool also includes additional features such as progress bars for loading tasks and validation to ensure smooth operations.
+The **TDU2 SaveGame Manager** is a tool designed to manage, backup, and restore save game files for the game **Test Drive Unlimited 2**.  
+It provides an intuitive interface for players to manage their savegame data, back it up, and easily restore backups.  
+The tool also includes additional features such as progress bars for loading tasks and validation to ensure smooth operations.  
 
 ## Features
 - **Backup Save Games:** Easily back up your TDU2 save game files with the click of a button. Backups are created with a timestamp to help keep track of versions.
@@ -46,4 +47,5 @@ Null
 - Improve the UI to support more flexible layouts for smaller screens.
 
 ## Contributing
-If you'd like to contribute to the project, feel free to fork the repository and submit a pull request. Be sure to check out the issues page for any known issues or feature requests!
+If you'd like to contribute to the project, feel free to fork the repository and submit a pull request.  
+Be sure to check out the issues page for any known issues or feature requests!
