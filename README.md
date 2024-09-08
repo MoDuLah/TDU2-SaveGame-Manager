@@ -49,3 +49,7 @@ Null
 ## Contributing
 If you'd like to contribute to the project, feel free to fork the repository and submit a pull request.  
 Be sure to check out the issues page for any known issues or feature requests!
+
+## License
+
+This project is licensed under the GNU General Public License (GPL) v3.0 - see the [LICENSE](LICENSE) file for details.
