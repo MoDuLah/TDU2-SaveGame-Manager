@@ -1,4 +1,6 @@
 # TDU2 SaveGame Manager
+![GitHub Repo stars](https://img.shields.io/github/stars/MoDuLah/TDU2-SaveGame-Manager)
+
 ## Overview
 The **TDU2 SaveGame Manager** is a tool designed to manage, backup, and restore save game files for the game **Test Drive Unlimited 2**.  
 It provides an intuitive interface for players to manage their savegame data, back it up, and easily restore backups.  
@@ -40,15 +42,17 @@ Once the project is built, you can run the application directly from your IDE or
 2. Click the Restore button to extract and restore the selected backup on the selected folder.
 
 ## Known Issues
-Null 
+![GitHub issues](https://img.shields.io/github/issues/MoDuLah/TDU2-SaveGame-Manager)
 
 ## Future Improvements
 - Add error handling for scenarios where the tar.exe is not available on the system.
 - Improve the UI to support more flexible layouts for smaller screens.
 
+Forks: 
 ## Contributing
 If you'd like to contribute to the project, feel free to fork the repository and submit a pull request.  
-Be sure to check out the issues page for any known issues or feature requests!
+Be sure to check out the issues page for any known issues or feature requests!  
+![GitHub forks](https://img.shields.io/github/forks/MoDuLah/TDU2-SaveGame-Manager)
 
 ## License
 
