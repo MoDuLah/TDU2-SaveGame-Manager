@@ -49,7 +49,7 @@
             <Button Margin="0,10,0,10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Select Backup Destination"  Click="Button_Click">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Browse" VerticalAlignment="Center"/>
-                    <Image Width="24" MouseLeftButtonDown="Image_MouseLeftButtonDown" Focusable="False" Panel.ZIndex="2" >
+                    <Image Width="24" Focusable="False" Panel.ZIndex="2" >
                     <Image.Effect>
                         <DropShadowEffect/>
                     </Image.Effect>
