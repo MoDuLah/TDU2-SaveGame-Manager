@@ -17,5 +17,8 @@
     <Setting Name="defaultSaveFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">null</Value>
     </Setting>
+    <Setting Name="selectedTimeFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">yyyy.MM.dd_HH.mm</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

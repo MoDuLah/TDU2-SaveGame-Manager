@@ -82,5 +82,17 @@ namespace TDU2SaveGameManager.Properties {
                 this["defaultSaveFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("yyyy.MM.dd_HH.mm")]
+        public string selectedTimeFormat {
+            get {
+                return ((string)(this["selectedTimeFormat"]));
+            }
+            set {
+                this["selectedTimeFormat"] = value;
+            }
+        }
     }
 }

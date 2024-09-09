@@ -9,89 +9,129 @@
         mc:Ignorable="d" FontSize="16"
         Background="{x:Null}" SizeToContent="WidthAndHeight"
         Opacity="{Binding Source={x:Static p:Settings.Default}, Path=MainWindowOpacity, Mode=OneWay}" 
-        Title="{Binding ApplicationTitle}" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="{Binding ApplicationTitle}" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Foreground="White">
     <Grid>
-        <Grid.Background>
-            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=BGOpacity, Mode=OneWay}" Stretch="Fill" TileMode="FlipX"/>
-        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="Auto" MinWidth="300" />
-            <ColumnDefinition Width="Auto" MinWidth="130" MaxWidth="130"/>
-            <ColumnDefinition Width="Auto" MinWidth="300" />
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-
-        <!-- Title and path for FoldersListBox -->
-        <GroupBox Header="Save Game Folders" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
-            <StackPanel>
-                <TextBlock x:Name="SaveLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
-                <ListBox x:Name="FoldersListBox" Background="{x:Null}" MinHeight="200"/>
-            </StackPanel>
-        </GroupBox>
-        <!-- Title and path for BackupsListBox -->
-        <GroupBox Header="Backups" Grid.Column="3" Grid.Row="1" Grid.RowSpan="2">
-            <StackPanel>
-                <TextBlock x:Name="BackupLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=BackupFolderPath, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=backupFolderPath, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
-                <ListBox x:Name="BackupsListBox" Background="{x:Null}" MinHeight="200"/>
-            </StackPanel>
-        </GroupBox>
-        <StackPanel Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" >
-            <Button Margin="0,10,0,10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Select Backup Destination"  Click="Button_Click">
+        <Grid.Background>
+            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=BGOpacity, Mode=OneWay}" Stretch="Fill" TileMode="FlipX"/>
+        </Grid.Background>
+        <Grid x:Name="SettingsGrid" Grid.Column="1" Grid.Row="1" Visibility="Visible">
+            <GroupBox Header="Settings">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Browse" VerticalAlignment="Center"/>
-                    <Image Width="24" Focusable="False" Panel.ZIndex="2" >
-                    <Image.Effect>
+                    <GroupBox Header="Date/Time Format:">
+                        <ComboBox x:Name="timeformatComboBox" SelectionChanged="timeformatComboBox_SelectionChanged">
+                            <ComboBoxItem Content="yyyy.MM.dd_HH.mm" ToolTip="ex: 2024.02.15_18.35" />
+                            <ComboBoxItem Content="yyyy-MM-dd_HH-mm" ToolTip="ex: 2024-02-15_18-35" />
+                            <ComboBoxItem Content="MM.dd.yyyy_HH.mm" ToolTip="ex: 02.15.2024_18-35"/>
+                            <ComboBoxItem Content="MM-dd-yyyy_HH-mm" ToolTip="ex: 02-15-2024_18-35"/>
+                            <ComboBoxItem Content="dd.MM.yyyy_HH.mm" ToolTip="ex: 15.02.2024_18.35"/>
+                            <ComboBoxItem Content="dd-MM-yyyy_HH-mm" ToolTip="ex: 15-02-2024_18-35"/>
+                        </ComboBox>
+                    </GroupBox>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <Grid x:Name="mainapp" Grid.Row="1" Grid.Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto" MinWidth="300" />
+                <ColumnDefinition Width="Auto" MinWidth="130" />
+                <ColumnDefinition Width="Auto" MinWidth="300" />
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" Margin="10,0,0,0">
+                <StackPanel.Effect>
+                    <DropShadowEffect/>
+                </StackPanel.Effect>
+                <Image x:Name="toggleOff" Source="/Images/ToggleOff.png" VerticalAlignment="Bottom" HorizontalAlignment="Center" MouseLeftButtonDown="toggle_MouseLeftButtonDown"/>
+                <Image x:Name="toggleOn" Visibility="Collapsed" Source="/Images/ToggleOn.png" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="toggle_MouseLeftButtonDown"/>
+
+                <TextBlock Text="Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"/>
+            </StackPanel>
+            <!-- Title and path for FoldersListBox -->
+            <GroupBox Header="Save Game Folders" Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Margin="10,10,10,0">
+                <StackPanel>
+                    <StackPanel.Effect>
                         <DropShadowEffect/>
-                    </Image.Effect>
-                    <Image.Style>
-                        <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="Images/Folder.png"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Source" Value="Images/Folder_over.png"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Image.Style>
-                 </Image>
+                    </StackPanel.Effect>
+                    <TextBlock x:Name="SaveLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=defaultSaveFolder, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
+                    <ListBox x:Name="FoldersListBox" Background="{x:Null}" MinHeight="200" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                </StackPanel>
+            </GroupBox>
+            <Button x:Name="btnRefresh" Grid.Column="2" Grid.Row="1" Click="btnRefresh_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                    <StackPanel.Effect>
+                        <DropShadowEffect/>
+                    </StackPanel.Effect>
+                    <TextBlock Text="Refresh" VerticalAlignment="Center" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,5,0"/>
+                    <Image Source="/Images/Refresh.png" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0">
+                    </Image>
                 </StackPanel>
             </Button>
-            <Button Margin="0,10,0,10" Click="BackupButton_Click" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Backup" VerticalAlignment="Center"/>
-                <Image Source="/Images/Save.png" Width="24">
-                    <Image.Effect>
+            <Button x:Name="btn_BackupFolder" Grid.Column="3" Grid.Row="1" Click="Button_Click" ToolTip="Select Backup Destination" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,0,10,0" >
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Effect>
                         <DropShadowEffect/>
-                    </Image.Effect>
-                </Image>
+                    </StackPanel.Effect>
+                    <TextBlock Text="Change Backup Folder" FontWeight="Bold" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <Image Source="/Images/Folder.png" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0"/>
                 </StackPanel>
-        </Button>
-        <Button Margin="0,10,0,0" Click="RestoreButton_Click" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Restore" VerticalAlignment="Center"/>
-                <Image Source="/Images/Restore.png" Width="24">
-                    <Image.Effect>
+            </Button>
+            <!-- Title and path for BackupsListBox -->
+            <GroupBox Header="Backups" Grid.Column="3" Grid.Row="2" Grid.RowSpan="2" Margin="10,10,10,0">
+                <StackPanel>
+                    <StackPanel.Effect>
                         <DropShadowEffect/>
-                    </Image.Effect>
-                </Image>
+                    </StackPanel.Effect>
+                    <TextBlock x:Name="BackupLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=BackupFolderPath, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=backupFolderPath, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center"/>
+                    <ListBox x:Name="BackupsListBox" Background="{x:Null}" MinHeight="200" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                </StackPanel>
+            </GroupBox>
+            <StackPanel Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" >
+            <Button x:Name="btnBackup" Margin="10" VerticalAlignment="Center" Click="BackupButton_Click" >
+                <StackPanel Orientation="Horizontal">
+                        <StackPanel.Effect>
+                            <DropShadowEffect/>
+                        </StackPanel.Effect>
+                        <TextBlock Text="Backup" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,5,0"/>
+                    <Image Source="/Images/arrowsRight.png" Width="32" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
+                <Button x:Name="bntRestore" Click="RestoreButton_Click">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Effect>
+                        <DropShadowEffect/>
+                    </StackPanel.Effect>
+                    <Image Source="/Images/arrowsLeft.png" Width="32" Margin="0,0,5,0"/>
+                    <TextBlock Text="Restore" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                </StackPanel>
+            </Button>
             </StackPanel>
-        </Button>
-        </StackPanel>
-        <DockPanel x:Name="ErrorPanel" Grid.Column="1" Visibility="Visible" Grid.Row="4" Grid.ColumnSpan="3" LastChildFill="True" MaxWidth="700" Background="#CCD3D3D3" Margin="10">
+            <DockPanel x:Name="ErrorPanel" Grid.Column="1" Visibility="Visible" Grid.Row="4" Grid.ColumnSpan="3" LastChildFill="True" MaxWidth="700" Background="#CCD3D3D3" Margin="10">
             <!-- ProgressBar for showing the progress -->
             <ProgressBar DockPanel.Dock="Top" x:Name="ProgressBar" Margin="10" Height="20" Visibility="Collapsed" Minimum="0" Maximum="100" Value="0"/>
             <!-- Error message -->
             <TextBlock DockPanel.Dock="Bottom" x:Name="ErrorTextBlock" Text=" " Margin="10" Foreground="Black" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
         </DockPanel>
+    </Grid>
     </Grid>
 </Window>

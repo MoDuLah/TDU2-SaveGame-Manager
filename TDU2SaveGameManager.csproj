@@ -21,11 +21,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\arrowsLeft.png" />
+    <None Remove="Images\arrowsRight.png" />
     <None Remove="Images\BG.png" />
     <None Remove="Images\Folder.png" />
     <None Remove="Images\Folder_over.png" />
+    <None Remove="Images\Refresh.png" />
     <None Remove="Images\Restore.png" />
     <None Remove="Images\Save.png" />
+    <None Remove="Images\Switch Off.png" />
+    <None Remove="Images\Switch On.png" />
+    <None Remove="Images\ToggleOff.png" />
+    <None Remove="Images\ToggleOn.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,14 +41,25 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Images\BG.png" />
     <Resource Include="Images\Folder.png" />
     <Resource Include="Images\Folder_over.png" />
+    <Resource Include="Images\arrowsLeft.png" />
+    <Resource Include="Images\Refresh.png" />
     <Resource Include="Images\Restore.png" />
+    <Resource Include="Images\arrowsRight.png" />
     <Resource Include="Images\Save.png" />
+    <Resource Include="Images\Switch Off.png" />
+    <Resource Include="Images\Switch On.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\ToggleOff.png" />
+    <Resource Include="Images\ToggleOn.png" />
   </ItemGroup>
 
   <ItemGroup>
