@@ -6,6 +6,9 @@ using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using ICSharpCode.SharpZipLib.Tar;
 using System.Text;
+using System.Windows.Input;
+using TDU2SaveGameManager.Properties;
+using System.Collections.ObjectModel;
 
 namespace TDU2SaveGameManager
 {
@@ -15,15 +18,22 @@ namespace TDU2SaveGameManager
         private string defaultBackupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
         public string backupPath; // Use a variable to store the backup path
         public required string defaultSaveFolder; // Use a variable to store the gamesave path
+        public ObservableCollection<string> ErrorMessages { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
-            ApplicationTitle = $"TDU2 Save Game Manager - Version {GetAssemblyVersion()}";
+            ApplicationTitle = $"1.1.2.0";
+            ErrorMessages = new ObservableCollection<string>();
+            ErrorListBox.ItemsSource = ErrorMessages; // Bind the ListBox to the ObservableCollection
 
-            backupPath = Properties.Settings.Default.backupFolderPath;
-            defaultSaveFolder = Properties.Settings.Default.defaultSaveFolder;
+            if (string.IsNullOrEmpty(Settings.Default.selectedTimeFormat))
+            {
+                Settings.Default.selectedTimeFormat = "yyyy.MM.dd_HH.mm";
+            }
+            backupPath = Settings.Default.backupFolderPath;
+            defaultSaveFolder = Settings.Default.defaultSaveFolder;
             SettingsGrid.Visibility = Visibility.Collapsed;
             // Validate if the saved backup path is valid and writable
             if (!Directory.Exists(backupPath) || !HasWritePermission(backupPath))
@@ -31,21 +41,22 @@ namespace TDU2SaveGameManager
                 ShowError("The saved backup folder is invalid or not writable. Using the default backup folder.");
                 // Fallback to the default backup path
                 backupPath = defaultBackupPath;
-                Properties.Settings.Default.backupFolderPath = backupPath;
-                Properties.Settings.Default.Save();
+                Settings.Default.backupFolderPath = backupPath;
+                Settings.Default.Save();
             }
-            ErrorPanel.Visibility = Visibility.Collapsed;
+
             LoadFolders();
             LoadBackups();
         }
 
         private void LoadFolders()
         {
+
             if (Directory.Exists(userDocumentsPath))
             {
                 SaveLocation.Text = $"({userDocumentsPath})";
-                Properties.Settings.Default.defaultSaveFolder = userDocumentsPath;
-                Properties.Settings.Default.Save();
+                Settings.Default.defaultSaveFolder = userDocumentsPath;
+                Settings.Default.Save();
                 FoldersListBox.Items.Clear();
                 foreach (var dir in Directory.GetDirectories(userDocumentsPath))
                 {
@@ -67,8 +78,8 @@ namespace TDU2SaveGameManager
                 if (result == CommonFileDialogResult.Ok)
                 {
                     userDocumentsPath = folderDialog.FileName;
-                    Properties.Settings.Default.defaultSaveFolder = userDocumentsPath;
-                    Properties.Settings.Default.Save();
+                    Settings.Default.defaultSaveFolder = userDocumentsPath;
+                    Settings.Default.Save();
                     LoadFolders(); // Reload folders from the new path
                 }
                 else
@@ -114,7 +125,8 @@ namespace TDU2SaveGameManager
         }
         public async Task CreateBackupAsync()
         {
-            string datetimeformat = Properties.Settings.Default.selectedTimeFormat;
+           
+            string datetimeformat = Settings.Default.selectedTimeFormat;
 
             if (FoldersListBox.SelectedItem is string sourceDirName)
             {
@@ -283,6 +295,7 @@ namespace TDU2SaveGameManager
                     ErrorPanel.Visibility = Visibility.Collapsed;
                     FoldersListBox.SelectedItem = null;
                     BackupsListBox.SelectedItem = null;
+                    ErrorTextBlock.Text = null;
                 }
             }
             else
@@ -314,11 +327,14 @@ namespace TDU2SaveGameManager
 
         private async void ShowError(string message)
         {
+            ErrorTextBlock.Text = null;
             ErrorPanel.Visibility = Visibility.Visible;
             string formattedMessage = message.Replace(". ", "." + Environment.NewLine);
             ErrorTextBlock.Text = formattedMessage;
+            ErrorMessages.Add(formattedMessage);
             await Task.Delay(5000);
             ErrorPanel.Visibility = Visibility.Collapsed;
+            ErrorTextBlock.Text = null;
         }
 
         private void ChooseBackupFolderButton_Click(object sender, RoutedEventArgs e)
@@ -344,13 +360,13 @@ namespace TDU2SaveGameManager
                 }
 
                 // Save the valid selected path to application settings
-                Properties.Settings.Default.backupFolderPath = selectedPath;
-                Properties.Settings.Default.Save();
+                Settings.Default.backupFolderPath = selectedPath;
+                Settings.Default.Save();
 
                 // Update the backupPath variable and BackupLocation TextBlock
                 backupPath = selectedPath;
-                BackupLocation.Text = Properties.Settings.Default.backupFolderPath;
-                BackupLocation.ToolTip = Properties.Settings.Default.backupFolderPath;
+                BackupLocation.Text = Settings.Default.backupFolderPath;
+                BackupLocation.ToolTip = Settings.Default.backupFolderPath;
 
                 // Reload the backups list for the new path
                 LoadBackups();
@@ -387,8 +403,8 @@ namespace TDU2SaveGameManager
                 }
 
                 // Save the valid selected path to application settings
-                Properties.Settings.Default.backupFolderPath = selectedPath;
-                Properties.Settings.Default.Save();
+                Settings.Default.backupFolderPath = selectedPath;
+                Settings.Default.Save();
 
                 // Update the backupPath variable and BackupLocation TextBlock
                 backupPath = selectedPath;
@@ -414,15 +430,47 @@ namespace TDU2SaveGameManager
                 toggleOff.Visibility = Visibility.Collapsed;
                 toggleOn.Visibility = Visibility.Visible;
                 SettingsGrid.Visibility = Visibility.Visible;
+                //MoveWindowLeft(SettingsGrid.Width);
             }
             else
             {
                 toggleOff.Visibility = Visibility.Visible;
                 toggleOn.Visibility = Visibility.Collapsed;
                 SettingsGrid.Visibility = Visibility.Collapsed;
+                //MoveWindowRight(SettingsGrid.Width);
             }
         }
 
+        private void MoveWindowLeft(double offset)
+        {
+            // Check if the window is not minimized
+            if (WindowState == WindowState.Minimized)
+            {
+                // Restore the window if it is minimized
+                WindowState = WindowState.Normal;
+            }
+
+            // Calculate the new left position
+            double newLeft = Left - offset;
+
+            // Set the new position
+            Left = newLeft;
+        }
+        private void MoveWindowRight(double offset)
+        {
+            // Check if the window is not minimized
+            if (WindowState == WindowState.Minimized)
+            {
+                // Restore the window if it is minimized
+                WindowState = WindowState.Normal;
+            }
+
+            // Calculate the new left position
+            double newLeft = Left + offset;
+
+            // Set the new position
+            Left = newLeft;
+        }
 
         private void timeformatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -432,14 +480,58 @@ namespace TDU2SaveGameManager
                 string selectedTimeFormat = selectedItem.Content?.ToString() ?? "DefaultFormat";
 
                 ShowError($"The time format has changed to: {selectedTimeFormat}");
-                Properties.Settings.Default.selectedTimeFormat = selectedTimeFormat;
-                Properties.Settings.Default.Save();
+                Settings.Default.selectedTimeFormat = selectedTimeFormat;
+                Settings.Default.Save();
             }
             else
             {
                 // Handle the case where no item is selected, if needed
                 ShowError("No time format selected.");
             }
+        }
+
+        private void Minimize_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Window.GetWindow(this).WindowState = WindowState.Minimized;
+        }
+
+        private void Close_Button_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Window.GetWindow(this)?.Close();
+        }
+        private void SocialButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var url = button?.CommandParameter as string;
+            if (!string.IsNullOrEmpty(url))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+        }
+
+        private void SaveGameManager_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+        private void SaveGameManager_Loaded(object sender, RoutedEventArgs e)
+        {
+            double windowWidth = this.ActualWidth;
+            // Use the width as needed
+            spacer.Width = windowWidth / 2 - 100;
+        }
+
+        private void SaveGameManager_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            double windowWidth = this.ActualWidth;
+            // Use the width as needed
+            spacer.Width = windowWidth / 2 - 100;
         }
     }
 }

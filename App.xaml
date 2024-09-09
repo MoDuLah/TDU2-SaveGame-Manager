@@ -6,22 +6,24 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes\Button.xaml"/>
-                <ResourceDictionary Source="Themes\DataGrid.xaml"/>
-                <ResourceDictionary Source="Themes\TabControl.xaml"/>
-                <ResourceDictionary Source="Themes\TabItem.xaml"/>
-                <ResourceDictionary Source="Themes\GroupBox.xaml"/>
-                <ResourceDictionary Source="Themes\TextBox.xaml"/>
-                <ResourceDictionary Source="Themes\ComboBox.xaml"/>
-                <ResourceDictionary Source="Themes\TreeView.xaml"/>
-                <ResourceDictionary Source="Themes\Menu.xaml"/>
-                <ResourceDictionary Source="Themes\ScrollBar.xaml"/>
-                <ResourceDictionary Source="Themes\ListBox.xaml" />
-                <ResourceDictionary Source="Themes\ListView.xaml" />
-                <!--<ResourceDictionary Source="Themes\ProgressBar.xaml"/>-->
-                <ResourceDictionary Source="Themes\ToggleButton.xaml"/>
-                <ResourceDictionary Source="Themes\ToolTip.xaml"/>
+                <ResourceDictionary Source="Themes/Button.xaml"/>
+                <ResourceDictionary Source="Themes/DataGrid.xaml"/>
+                <ResourceDictionary Source="Themes/TabControl.xaml"/>
+                <ResourceDictionary Source="Themes/TabItem.xaml"/>
+                <ResourceDictionary Source="Themes/GroupBox.xaml"/>
+                <ResourceDictionary Source="Themes/TextBox.xaml"/>
+                <ResourceDictionary Source="Themes/ComboBox.xaml"/>
+                <ResourceDictionary Source="Themes/TreeView.xaml"/>
+                <ResourceDictionary Source="Themes/Menu.xaml"/>
+                <ResourceDictionary Source="Themes/ScrollBar.xaml"/>
+                <ResourceDictionary Source="Themes/ListBox.xaml"/>
+                <ResourceDictionary Source="Themes/ListView.xaml"/>
+                <!-- <ResourceDictionary Source="Themes/ProgressBar.xaml"/> -->
+                <ResourceDictionary Source="Themes/ToggleButton.xaml"/>
+                <ResourceDictionary Source="Themes/ToolTip.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <!-- Add your converter here -->
+            <local:CenterConverter x:Key="CenterConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
