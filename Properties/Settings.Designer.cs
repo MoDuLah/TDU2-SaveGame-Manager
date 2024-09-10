@@ -25,55 +25,19 @@ namespace TDU2SaveGameManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public string MainWindowOpacity {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string defaultBackupFolder {
             get {
-                return ((string)(this["MainWindowOpacity"]));
+                return ((string)(this["defaultBackupFolder"]));
             }
             set {
-                this["MainWindowOpacity"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public string BGOpacity {
-            get {
-                return ((string)(this["BGOpacity"]));
-            }
-            set {
-                this["BGOpacity"] = value;
+                this["defaultBackupFolder"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string defaultPath {
-            get {
-                return ((string)(this["defaultPath"]));
-            }
-            set {
-                this["defaultPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("null")]
-        public string backupFolderPath {
-            get {
-                return ((string)(this["backupFolderPath"]));
-            }
-            set {
-                this["backupFolderPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("null")]
         public string defaultSaveFolder {
             get {
                 return ((string)(this["defaultSaveFolder"]));
@@ -82,22 +46,94 @@ namespace TDU2SaveGameManager.Properties {
                 this["defaultSaveFolder"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("yyyy.MM.dd_HH.mm")]
-        public string selectedTimeFormat {
+        public string defaultTimeFormat {
             get {
-                return ((string)(this["selectedTimeFormat"]));
+                return ((string)(this["defaultTimeFormat"]));
             }
             set {
-                this["selectedTimeFormat"] = value;
+                this["defaultTimeFormat"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.2.0.0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string OpacityBackground {
+            get {
+                return ((string)(this["OpacityBackground"]));
+            }
+            set {
+                this["OpacityBackground"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string OpacityMainWindow {
+            get {
+                return ((string)(this["OpacityMainWindow"]));
+            }
+            set {
+                this["OpacityMainWindow"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int runTimes {
+            get {
+                return ((int)(this["runTimes"]));
+            }
+            set {
+                this["runTimes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string userSelectedBackupFolder {
+            get {
+                return ((string)(this["userSelectedBackupFolder"]));
+            }
+            set {
+                this["userSelectedBackupFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string userSelectedTimeFormat {
+            get {
+                return ((string)(this["userSelectedTimeFormat"]));
+            }
+            set {
+                this["userSelectedTimeFormat"] = value;
+            }
+        }
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string userSelectedSaveFolder {
+            get {
+                return ((string)(this["userSelectedSaveFolder"]));
+            }
+            set {
+                this["userSelectedSaveFolder"] = value;
+            }
+        }
+        
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.2.1.0")]
         public string version {
             get {
                 return ((string)(this["version"]));
@@ -106,5 +142,6 @@ namespace TDU2SaveGameManager.Properties {
                 this["version"] = value;
             }
         }
+        
     }
 }

@@ -22,8 +22,6 @@
                 <ResourceDictionary Source="Themes/ToggleButton.xaml"/>
                 <ResourceDictionary Source="Themes/ToolTip.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <!-- Add your converter here -->
-            <local:CenterConverter x:Key="CenterConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

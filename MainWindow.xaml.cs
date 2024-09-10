@@ -4,68 +4,153 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using ICSharpCode.SharpZipLib.Tar;
-using System.Text;
 using System.Windows.Input;
 using TDU2SaveGameManager.Properties;
+using TDU2SaveGameManager.Classes;
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 
 namespace TDU2SaveGameManager
 {
     public partial class MainWindow : Window
     {
-        private string userDocumentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Eden Games", "Test Drive Unlimited 2"); //
-        private string defaultBackupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
-        public string backupPath; // Use a variable to store the backup path
-        public required string defaultSaveFolder; // Use a variable to store the gamesave path
+        private string defaultSaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Eden Games", "Test Drive Unlimited 2"); //
+        private string defaultBackupFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
+        private string userSelectedSaveFolder = Settings.Default.userSelectedSaveFolder;
+        private string userSelectedBackupFolder = Settings.Default.userSelectedBackupFolder;
+        private string timeFormat = !string.IsNullOrEmpty(Settings.Default.userSelectedTimeFormat)
+            ? Settings.Default.userSelectedTimeFormat
+            : Settings.Default.defaultTimeFormat;
+        private double settingsMainWindowOpacity = Convert.ToDouble(Settings.Default.OpacityMainWindow);
+        private double settingsBGOpacity = Convert.ToDouble(Settings.Default.OpacityBackground);
+        public int Run = Settings.Default.runTimes;
+        public required string ApplicationTitle { get; set; }
+        public required string ApplicationRun { get; set; }
+
         public ObservableCollection<string> ErrorMessages { get; set; }
 
         public MainWindow()
         {
-            InitializeComponent();
-            DataContext = this;
-            ApplicationTitle = $"1.1.2.0";
             ErrorMessages = new ObservableCollection<string>();
-            ErrorListBox.ItemsSource = ErrorMessages; // Bind the ListBox to the ObservableCollection
+            InitializeComponent();
 
-            if (string.IsNullOrEmpty(Settings.Default.selectedTimeFormat))
-            {
-                Settings.Default.selectedTimeFormat = "yyyy.MM.dd_HH.mm";
-            }
-            backupPath = Settings.Default.backupFolderPath;
-            defaultSaveFolder = Settings.Default.defaultSaveFolder;
+            // Bind ErrorListBox to the ObservableCollection for error messages
+            ErrorListBox.ItemsSource = ErrorMessages;
             SettingsGrid.Visibility = Visibility.Collapsed;
-            // Validate if the saved backup path is valid and writable
-            if (!Directory.Exists(backupPath) || !HasWritePermission(backupPath))
-            {
-                ShowError("The saved backup folder is invalid or not writable. Using the default backup folder.");
-                // Fallback to the default backup path
-                backupPath = defaultBackupPath;
-                Settings.Default.backupFolderPath = backupPath;
-                Settings.Default.Save();
-            }
 
+            // Set DataContext for binding properties like ApplicationTitle and ApplicationRun
+            DataContext = this;
+
+            // Set ApplicationTitle and Run count for displaying in the UI
+            ApplicationTitle = "1.1.2.0";
+            Settings.Default.runTimes = ++Run; // Increment run counter
+            ApplicationRun = Run.ToString();
+            Settings.Default.Save();
+
+             // Set the slider to reflect the saved value
+            mainWindowOpacitySlider.Value = settingsMainWindowOpacity;
+            backGroundOpacitySlider.Value = settingsBGOpacity;
+            // Initialize paths for save folder and backup folder
+            InitializePaths();
             LoadFolders();
             LoadBackups();
         }
+        private void InitializePaths()
+            {
+            FolderCheck.EnsureDirectoryExists(Settings.Default.userSelectedBackupFolder, ShowError);
+            if (!FolderCheck.HasWritePermission(Settings.Default.userSelectedBackupFolder, ShowError))
+            {
+                ShowError($"Backup folder does not have write permission: {Settings.Default.userSelectedBackupFolder}");
+            }
+            FolderCheck.EnsureDirectoryExists(Settings.Default.userSelectedSaveFolder, ShowError);
+            if (!FolderCheck.HasWritePermission(Settings.Default.userSelectedSaveFolder, ShowError))
+            {
+                ShowError($"Backup folder does not have write permission: {Settings.Default.userSelectedSaveFolder}");
+            }
+                // Check if user-defined save folder is valid; if not, fallback to default
+            if (string.IsNullOrEmpty(userSelectedSaveFolder) || userSelectedSaveFolder == "null")
+            {
+                ShowError($"No user-defined save folder. Default save folder set: {defaultSaveFolder}");
+                Settings.Default.defaultSaveFolder = defaultSaveFolder; // Set default path
+                SavesLocation.Text = defaultSaveFolder;
+            }
+            else
+            {
+
+                ShowError($"User-defined save folder used: {userSelectedSaveFolder}");
+                SavesLocation.Text = userSelectedSaveFolder;
+            }
+
+            // Check if user-defined backup folder is valid; if not, fallback to default
+            if (string.IsNullOrEmpty(userSelectedBackupFolder) || userSelectedBackupFolder == "null")
+            {
+                ShowError($"No user-defined backup folder. Default backup folder set: {defaultBackupFolder}");
+                Settings.Default.defaultBackupFolder = defaultBackupFolder; // Set default path
+                BackupLocation.Text = defaultBackupFolder;
+            }
+            else
+            {
+                ShowError($"User-defined backup folder used: {userSelectedBackupFolder}");
+                SettingsCheck.SaveBackupFolderPath(userSelectedBackupFolder);
+                BackupLocation.Text = userSelectedBackupFolder;
+            }
+            // Save the updated settings
+            Settings.Default.Save();
+        }
+        //private void ShowSettings()
+        //{
+        //    MessageBox.Show($"User Selected Backup Folder: {Settings.Default.userSelectedBackupFolder}\n" +
+        //                    $"Default Backup Folder:{Settings.Default.defaultBackupFolder}\n\n" +
+        //                    $"User Selected Save Folder: {Settings.Default.userSelectedSaveFolder}\n" +
+        //                    $"Default Savegame Folder: {Settings.Default.defaultSaveFolder}.\n\n" +
+        //                    $"Current Time Format: {timeFormat}");
+        //}
+        private void TimeformatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string selectedFormat = "";
+
+            // Check if a valid ComboBoxItem is selected
+            if (timeformatComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                // Get the selected format as a string
+                selectedFormat = selectedItem.Content?.ToString() ?? ""; // Ensure it's not null
+
+                if (!string.IsNullOrEmpty(selectedFormat))
+                {
+                    // Save the selected format
+                    SettingsCheck.SaveTimeFormat(selectedFormat);
+                    ShowError($"The time format has changed to: {selectedFormat}");
+                }
+                else
+                {
+                    // Handle potential empty or null cases
+                    ShowError("Invalid format selected.");
+                }
+            }
+            else
+            {
+                // Fallback to default time format
+                ShowError($"Using default format {timeFormat}");
+            }
+        }
+
 
         private void LoadFolders()
         {
 
-            if (Directory.Exists(userDocumentsPath))
+            if (Directory.Exists(defaultSaveFolder) || string.IsNullOrEmpty(userSelectedSaveFolder))
             {
-                SaveLocation.Text = $"({userDocumentsPath})";
-                Settings.Default.defaultSaveFolder = userDocumentsPath;
-                Settings.Default.Save();
+                SavesLocation.Text = $"({defaultSaveFolder})";
+
                 FoldersListBox.Items.Clear();
-                foreach (var dir in Directory.GetDirectories(userDocumentsPath))
+                foreach (var dir in Directory.GetDirectories(defaultSaveFolder))
                 {
                     FoldersListBox.Items.Add(Path.GetFileName(dir));
                 }
             }
             else
             {
-                ShowError("Default TDU2 Save game path not found.");
+                ShowError("TDU2 Save game path not found.");
                 // Prompt user to select the save game folder
                 var folderDialog = new CommonOpenFileDialog
                 {
@@ -77,9 +162,11 @@ namespace TDU2SaveGameManager
                 var result = folderDialog.ShowDialog();
                 if (result == CommonFileDialogResult.Ok)
                 {
-                    userDocumentsPath = folderDialog.FileName;
-                    Settings.Default.defaultSaveFolder = userDocumentsPath;
+                    string selectedFolder = folderDialog.FileName;
+                    SavesLocation.Text = $"({selectedFolder})";
+                    Settings.Default.userSelectedSaveFolder = selectedFolder;
                     Settings.Default.Save();
+                    ShowError("User selected valid TDU2 Save game folder and it saved at settings.");
                     LoadFolders(); // Reload folders from the new path
                 }
                 else
@@ -89,17 +176,37 @@ namespace TDU2SaveGameManager
             }
         }
 
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            LoadFolders();
+            LoadBackups();
+        }
         private void LoadBackups()
         {
-            if (!Directory.Exists(backupPath))
+            //LoadDirectoriesIntoListBox(defaultBPath, FoldersListBox);
+            string backupPath;
+            if (!Directory.Exists(userSelectedBackupFolder) && !string.IsNullOrEmpty(userSelectedBackupFolder))
             {
-                backupPath = defaultBackupPath;
-                Directory.CreateDirectory(backupPath);
-                ShowError($"Backup path created at: {backupPath}");
+                Directory.CreateDirectory(userSelectedBackupFolder);
+                ShowError($"Backup path created at: {userSelectedBackupFolder}");
+                backupPath = userSelectedBackupFolder;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(userSelectedBackupFolder)){
+                    backupPath = userSelectedBackupFolder;
+                    //ShowError($"Backup path is set by user at {backupPath}");
+
+                } 
+                else
+                {
+                    backupPath = defaultBackupFolder;
+                    //ShowError($"Backup path is set to default folder (App root folder) {backupPath}");
+                }
             }
             BackupLocation.Text = $"({backupPath})";
             BackupsListBox.Items.Clear();
-            foreach (var file in Directory.GetFiles(backupPath, "*.tar"))
+            foreach (var file in Directory.GetFiles(backupPath, "*.zip"))
             {
                 BackupsListBox.Items.Add(Path.GetFileName(file));
             }
@@ -110,73 +217,49 @@ namespace TDU2SaveGameManager
             }
         }
 
+ 
         private async void BackupButton_Click(object sender, RoutedEventArgs e)
         {
-            var backupTask = CreateBackupAsync();
-            try
-            {
-                await backupTask;
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions here
-                ShowError($"An error occurred: {ex.Message}");
-            }
-        }
-        public async Task CreateBackupAsync()
-        {
-           
-            string datetimeformat = Settings.Default.selectedTimeFormat;
-
             if (FoldersListBox.SelectedItem is string sourceDirName)
             {
-                string sourceDir = Path.Combine(userDocumentsPath, sourceDirName);
-                string datetime = DateTime.Now.ToString(datetimeformat);
-                string archivePath = Path.Combine(backupPath, $"{sourceDirName}_backup_{datetime}.tar");
-
-                try
+                string savePath, backupPath;
+                if (string.IsNullOrEmpty(userSelectedSaveFolder))
                 {
-                    // Show the progress bar and error panel, and simulate a 2-second loading time
-                    ErrorPanel.Visibility = Visibility.Visible;
-                    ProgressBar.Visibility = Visibility.Visible;
-                    ProgressBar.IsIndeterminate = true;
-
-                    // Wait for 2 seconds before executing the backup
-                    await Task.Delay(2000);
-
-                    // Proceed with backup after the 2-second delay
-                    using (var tarStream = new FileStream(archivePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                    using (var tarArchive = TarArchive.CreateOutputTarArchive(tarStream))
-                    {
-                        tarArchive.RootPath = sourceDir; // Set the root path for TAR entries
-                        tarArchive.IsStreamOwner = true; // Make sure the stream is closed when finished
-                        AddFilesToTarArchive(tarArchive, sourceDir);
-                    }
-                    // Show success message after progress bar is hidden
-                    await Task.Delay(1000); // Optional small delay for smooth transition
-                    ShowError("Backup successful!");
-                    await Task.Delay(1000);
-
-                    LoadBackups();
-
-                    // Select the last backup in the list after loading backups
-                    if (BackupsListBox.Items.Count > 0)
-                    {
-                        BackupsListBox.SelectedIndex = BackupsListBox.Items.Count - 1;
-                    }
-
-
+                    savePath = defaultSaveFolder;
                 }
-                catch (Exception ex)
+                else
                 {
-                    ShowError($"An error occurred during backup: {ex.Message}");
+                    savePath = userSelectedSaveFolder;
                 }
-                finally
+                if (string.IsNullOrEmpty(userSelectedBackupFolder))
                 {
-                    // Hide the progress bar and reset selections
-                    ProgressBar.IsIndeterminate = false;
-                    FoldersListBox.SelectedItem = null;
+                    backupPath = defaultBackupFolder;
+                } else
+                {
+                    backupPath = userSelectedBackupFolder;
                 }
+                // Get the used backup folder (either default or user-selected)
+                string sourceDir = Path.Combine(savePath, sourceDirName);
+                string datetimeFormat = SettingsCheck.GetTimeFormat();
+                string datetime = DateTime.Now.ToString(datetimeFormat);
+                string archiveName = $"{sourceDirName}_backup_{datetime}";
+
+                // Ensure backup folder exists and has write permissions
+                FolderCheck.EnsureDirectoryExists(backupPath, ShowError);
+                if (!FolderCheck.HasWritePermission(backupPath, ShowError)) return;
+
+                // Perform the backup
+                await BackupHandling.CreateBackupAsync(sourceDir, backupPath, archiveName, ProgressBar, ShowError);
+
+                // Reload backup list after backup completes
+                FolderCheck.LoadDirectoriesIntoListBox(backupPath, BackupsListBox);
+
+                if (BackupsListBox.Items.Count > 0)
+                {
+                    BackupsListBox.SelectedIndex = BackupsListBox.Items.Count - 1;
+                }
+                LoadFolders();
+                LoadBackups();
             }
             else
             {
@@ -184,119 +267,44 @@ namespace TDU2SaveGameManager
             }
         }
 
-        private void AddFilesToTarArchive(TarArchive tarArchive, string sourceDir)
-        {
-            var files = Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories);
-            foreach (var file in files)
-            {
-                string relativePath = Path.GetRelativePath(sourceDir, file);
-                var entry = TarEntry.CreateEntryFromFile(file);
-                entry.Name = relativePath;
-                tarArchive.WriteEntry(entry, true);
-            }
-        }
 
         private async void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(defaultSaveFolder))
-            {
-                backupPath = defaultBackupPath;
-                Directory.CreateDirectory(backupPath);
-                ShowError($"Backup path created at: {backupPath}");
-            }
-
             if (BackupsListBox.SelectedItem is string backupFileName)
             {
+                string savePath, backupPath;
+                if (string.IsNullOrEmpty(userSelectedSaveFolder))
+                {
+                    savePath = defaultSaveFolder;
+                }
+                else
+                {
+                    savePath = userSelectedSaveFolder;
+                }
+                if (string.IsNullOrEmpty(userSelectedBackupFolder))
+                {
+                    backupPath = defaultBackupFolder;
+                }
+                else
+                {
+                    backupPath = userSelectedBackupFolder;
+                }
+                // Get the used save folder (either default or user-selected)
                 string backupFile = Path.Combine(backupPath, backupFileName);
-                string restoreDir = Path.Combine(userDocumentsPath, "savegame");
+                string restoreDir = Path.Combine(savePath,"savegame");
 
-                if (!Directory.Exists(restoreDir))
-                {
-                    ShowError($"Restore directory does not exist: {restoreDir}");
-                    return;
-                }
+                // Ensure restore directory exists and has write permissions
+                FolderCheck.EnsureDirectoryExists(restoreDir, ShowError);
+                if (!FolderCheck.HasWritePermission(restoreDir, ShowError)) return;
 
-                if (!HasWritePermission(restoreDir))
-                {
-                    ShowError($"You do not have write permissions for: {restoreDir}. Please ensure you have the necessary permissions or run the application as an administrator. Or attempt a manual extraction of the data to the savegame folder. Both folders will open in 5 seconds.");
-                    await Task.Delay(5000);
+                // Perform the restore
+                await BackupHandling.RestoreBackupAsync(backupFile, restoreDir, ProgressBar, ShowError);
 
-                    // Open the backup and restore directories in Windows File Explorer
-                    Process.Start("explorer.exe", backupFile);
-                    Process.Start("explorer.exe", restoreDir);
-
-                    return;
-                }
-
-                try
-                {
-                    ErrorPanel.Visibility = Visibility.Visible;
-                    ProgressBar.Visibility = Visibility.Visible;
-                    ProgressBar.IsIndeterminate = true;
-
-                    // Wait for 2 seconds before starting the restore process
-                    await Task.Delay(2000);
-
-                    await Task.Run(() =>
-                    {
-                        // Use SharpZipLib to extract the TAR file
-                        using (Stream inStream = File.OpenRead(backupFile))
-                        using (TarInputStream tarInputStream = new TarInputStream(inStream, Encoding.UTF8))
-                        {
-                            TarEntry entry;
-                            while ((entry = tarInputStream.GetNextEntry()) != null)
-                            {
-                                string fullPath = Path.Combine(restoreDir, entry.Name);
-
-                                if (entry.TarHeader.TypeFlag == TarHeader.LF_SYMLINK)
-                                {
-                                    // Optionally log and skip symlinks or handle accordingly
-                                    continue;
-                                }
-                                else if (entry.IsDirectory)
-                                {
-                                    // Create directory if it doesn't exist
-                                    Directory.CreateDirectory(fullPath);
-                                }
-                                else
-                                {
-                                    // Ensure the directory exists
-                                    var directoryPath = Path.GetDirectoryName(fullPath);
-                                    if (directoryPath != null)
-                                    {
-                                        Directory.CreateDirectory(directoryPath);
-                                    }
-
-                                    // Extract the file
-                                    using (FileStream outputStream = File.Create(fullPath))
-                                    {
-                                        tarInputStream.CopyEntryContents(outputStream);
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    LoadFolders();
-                    LoadBackups();
-
-                    // Show success message after progress bar is hidden
-                    await Task.Delay(500); // Optional small delay for smooth transition
-                    ShowError("Restore successful!");
-                }
-                catch (Exception ex)
-                {
-                    ShowError($"An error occurred during restore: {ex.Message}");
-                }
-                finally
-                {
-                    ProgressBar.Visibility = Visibility.Collapsed;
-                    ProgressBar.IsIndeterminate = false;
-                    ErrorPanel.Visibility = Visibility.Collapsed;
-                    FoldersListBox.SelectedItem = null;
-                    BackupsListBox.SelectedItem = null;
-                    ErrorTextBlock.Text = null;
-                }
+                // Reload folders after restore completes
+                FolderCheck.LoadDirectoriesIntoListBox(savePath, FoldersListBox);
+                FolderCheck.LoadDirectoriesIntoListBox(backupPath, BackupsListBox);
+                LoadFolders();
+                LoadBackups();
             }
             else
             {
@@ -304,83 +312,59 @@ namespace TDU2SaveGameManager
             }
         }
 
-
-
-        private bool HasWritePermission(string directoryPath)
-        {
-            try
-            {
-                string testFilePath = Path.Combine(directoryPath, Path.GetRandomFileName());
-                using (var fs = File.Create(testFilePath)) { }
-                File.Delete(testFilePath);
-                return true;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return false;
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-        }
-
-        private async void ShowError(string message)
+        public async void ShowError(string message)
         {
             ErrorTextBlock.Text = null;
-            ErrorPanel.Visibility = Visibility.Visible;
+            //ErrorPanel.Visibility = Visibility.Visible;
             string formattedMessage = message.Replace(". ", "." + Environment.NewLine);
             ErrorTextBlock.Text = formattedMessage;
             ErrorMessages.Add(formattedMessage);
+            //ErrorListBox.ScrollIntoView(ErrorListBox.Items[ErrorListBox.Items.Count - 1]);
+
+            if (ErrorListBox.Items.Count > 4)
+            {
+                // Select the last item in the ListBox
+                ErrorListBox.SelectedIndex = ErrorListBox.Items.Count - 1;
+
+                // Scroll the ListBox to the last item
+                var lastItem = ErrorListBox.Items[ErrorListBox.Items.Count - 1];
+                ErrorListBox.ScrollIntoView(lastItem);
+
+                // Check if the ErrorListBox has visual children before accessing
+                if (VisualTreeHelper.GetChildrenCount(ErrorListBox) > 0)
+                {
+                    // Get the ScrollViewer from the ListBox's visual tree
+                    if (VisualTreeHelper.GetChild(ErrorListBox, 0) is Decorator border && border.Child is ScrollViewer scrollViewer)
+                    {
+                        scrollViewer.ScrollToBottom();
+                    }
+                    else
+                    {
+                        // Handle case where ScrollViewer or Decorator is not found
+                        //ShowError("Unable to scroll: ScrollViewer not found.");
+                    }
+                }
+                else
+                {
+                    // Handle case where ListBox has no visual children
+                    //ShowError("Unable to scroll: ListBox has no visual children.");
+                }
+            }
+
+
+            //ErrorListBox.ScrollIntoView(ErrorListBox.Items[ErrorListBox.Items.Count - 1]);
             await Task.Delay(5000);
-            ErrorPanel.Visibility = Visibility.Collapsed;
+            //ErrorPanel.Visibility = Visibility.Collapsed;
             ErrorTextBlock.Text = null;
         }
-
-        private void ChooseBackupFolderButton_Click(object sender, RoutedEventArgs e)
-        {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                string selectedPath = dialog.FileName;
-
-                // Validate if the directory exists
-                if (!Directory.Exists(selectedPath))
-                {
-                    ShowError("The selected directory does not exist.");
-                    return;
-                }
-
-                // Validate if the application has write permissions
-                if (!HasWritePermission(selectedPath))
-                {
-                    ShowError("You do not have write permissions for the selected directory.");
-                    return;
-                }
-
-                // Save the valid selected path to application settings
-                Settings.Default.backupFolderPath = selectedPath;
-                Settings.Default.Save();
-
-                // Update the backupPath variable and BackupLocation TextBlock
-                backupPath = selectedPath;
-                BackupLocation.Text = Settings.Default.backupFolderPath;
-                BackupLocation.ToolTip = Settings.Default.backupFolderPath;
-
-                // Reload the backups list for the new path
-                LoadBackups();
-            }
-        }
-        public required string ApplicationTitle { get; set; }
-
+  
         private string GetAssemblyVersion()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             return version != null ? version.ToString() : "Unknown Version";
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void btn_BackupFolder_Click(object sender, RoutedEventArgs e)
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
             dialog.IsFolderPicker = true;
@@ -389,88 +373,47 @@ namespace TDU2SaveGameManager
                 string selectedPath = dialog.FileName;
 
                 // Validate if the directory exists
-                if (!Directory.Exists(selectedPath))
-                {
-                    ShowError("The selected directory does not exist.");
-                    return;
-                }
+                FolderCheck.EnsureDirectoryExists(selectedPath, ShowError);
+
 
                 // Validate if the application has write permissions
-                if (!HasWritePermission(selectedPath))
+                if (!FolderCheck.HasWritePermission(selectedPath, ShowError))
                 {
                     ShowError("You do not have write permissions for the selected directory.");
                     return;
                 }
 
                 // Save the valid selected path to application settings
-                Settings.Default.backupFolderPath = selectedPath;
+                Settings.Default.userSelectedBackupFolder = userSelectedBackupFolder = selectedPath;
                 Settings.Default.Save();
 
                 // Update the backupPath variable and BackupLocation TextBlock
-                backupPath = selectedPath;
+                string backupPath = selectedPath;
                 BackupLocation.Text = $"({backupPath})";
+                BackupLocation.Text = Settings.Default.userSelectedBackupFolder;
+                BackupLocation.ToolTip = Settings.Default.userSelectedBackupFolder;
 
                 // Reload the backups list for the new path
                 LoadBackups();
             }
         }
 
-        private void btnRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            ShowError("Folders refreshed!");
-            LoadFolders();
-            LoadBackups();
-        }
-
-
-        private void toggle_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void toggle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (toggleOff.Visibility == Visibility.Visible)
             {
                 toggleOff.Visibility = Visibility.Collapsed;
                 toggleOn.Visibility = Visibility.Visible;
                 SettingsGrid.Visibility = Visibility.Visible;
-                //MoveWindowLeft(SettingsGrid.Width);
             }
             else
             {
                 toggleOff.Visibility = Visibility.Visible;
                 toggleOn.Visibility = Visibility.Collapsed;
                 SettingsGrid.Visibility = Visibility.Collapsed;
-                //MoveWindowRight(SettingsGrid.Width);
             }
         }
 
-        private void MoveWindowLeft(double offset)
-        {
-            // Check if the window is not minimized
-            if (WindowState == WindowState.Minimized)
-            {
-                // Restore the window if it is minimized
-                WindowState = WindowState.Normal;
-            }
-
-            // Calculate the new left position
-            double newLeft = Left - offset;
-
-            // Set the new position
-            Left = newLeft;
-        }
-        private void MoveWindowRight(double offset)
-        {
-            // Check if the window is not minimized
-            if (WindowState == WindowState.Minimized)
-            {
-                // Restore the window if it is minimized
-                WindowState = WindowState.Normal;
-            }
-
-            // Calculate the new left position
-            double newLeft = Left + offset;
-
-            // Set the new position
-            Left = newLeft;
-        }
 
         private void timeformatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -480,7 +423,7 @@ namespace TDU2SaveGameManager
                 string selectedTimeFormat = selectedItem.Content?.ToString() ?? "DefaultFormat";
 
                 ShowError($"The time format has changed to: {selectedTimeFormat}");
-                Settings.Default.selectedTimeFormat = selectedTimeFormat;
+                Settings.Default.userSelectedTimeFormat = selectedTimeFormat;
                 Settings.Default.Save();
             }
             else
@@ -513,6 +456,22 @@ namespace TDU2SaveGameManager
             }
         }
 
+        private void browseBackups_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            string Originaltext = BackupLocation.Text;
+            string updatedText = BackupLocation.Text.Substring(1, BackupLocation.Text.Length - 2); // Remove first and last character
+            BackupLocation.Text = updatedText;
+            if (!string.IsNullOrEmpty(updatedText)) {
+                ShowError($"{updatedText} is opening!");
+                Process.Start("explorer.exe", updatedText);
+            }
+            else
+            {
+                ShowError($"{updatedText} is blank");
+            }
+            BackupLocation.Text = Originaltext;
+        }
+
         private void SaveGameManager_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)
@@ -532,6 +491,11 @@ namespace TDU2SaveGameManager
             double windowWidth = this.ActualWidth;
             // Use the width as needed
             spacer.Width = windowWidth / 2 - 100;
+        }
+
+        private void SaveGameManager_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }
