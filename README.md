@@ -14,6 +14,7 @@ The tool also includes additional features such as progress bars for loading tas
 - **Selectable Backup Destination:** The user can select a custom directory to store backups.
 - **Getting Started**
 
+# For developers/contributors
 ## Prerequisites
 - **.NET 6.0** (or later) SDK
 - **Windows OS** (for running the executable)
