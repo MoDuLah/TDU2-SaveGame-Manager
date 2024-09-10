@@ -49,6 +49,22 @@ Once the project is built, you can run the application directly from your IDE or
 - Add error handling for scenarios where the tar.exe is not available on the system.
 - Improve the UI to support more flexible layouts for smaller screens.
 
+# For developers/contributors
+## Prerequisites
+- **.NET 6.0** (or later) SDK
+- **Windows OS** (for running the executable)
+- Building the Project
+### Clone this repository:
+   ```bash
+   git clone https://github.com/MoDuLah/MoDuLah.git
+   ```
+1. Open the solution in Visual Studio or your preferred C# editor.
+2. Restore the NuGet packages.
+3. Build the solution.
+
+## Running the Application
+Once the project is built, you can run the application directly from your IDE or as a standalone executable.
+
 Forks: 
 ## Contributing
 If you'd like to contribute to the project, feel free to fork the repository and submit a pull request.  
