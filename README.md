@@ -20,7 +20,7 @@ The tool also includes additional features such as progress bars for loading tas
 1. Select the folder containing the savegame files from the list on the left side.
 2. Feel free to customise the backup destination folder or let the program do it for you on a subdirectory in the software folder.
 3. Click the Backup button to create an uncompressed .zip archive of the save game folder in the selected destination.
-4. The backup will be saved in the format: <foldername>_backup_yyyy.MM.dd_HH.mm.tar.
+4. The backup will be saved in the selected format from the settings (or will use the default) 
 
 ### Restore
 1. Choose the backup file from the list.
@@ -30,14 +30,14 @@ The tool also includes additional features such as progress bars for loading tas
 ![GitHub issues](https://img.shields.io/github/issues/MoDuLah/TDU2-SaveGame-Manager)
 
 ## Future Improvements
-- Add error handling for scenarios where the tar.exe is not available on the system.
-- Improve the UI to support more flexible layouts for smaller screens.
+- Add compression choices.
+
+
+## Prerequisites
+- **.NET 8.0** (or later) SDK
+- **Windows OS** (for running the executable)
 
 # For developers/contributors
-## Prerequisites
-- **.NET 6.0** (or later) SDK
-- **Windows OS** (for running the executable)
-- Building the Project
 ### Clone this repository:
    ```bash
    git clone https://github.com/MoDuLah/MoDuLah.git
@@ -56,5 +56,4 @@ Be sure to check out the issues page for any known issues or feature requests!
 ![GitHub forks](https://img.shields.io/github/forks/MoDuLah/TDU2-SaveGame-Manager)
 
 ## License
-
 This project is licensed under the GNU General Public License (GPL) v3.0 - see the [LICENSE](LICENSE) file for details.
