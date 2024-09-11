@@ -9,6 +9,9 @@ using TDU2SaveGameManager.Properties;
 using TDU2SaveGameManager.Classes;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using System.Collections.Generic;
+using System.Windows.Media.Imaging;
+using Microsoft.VisualBasic;
 
 namespace TDU2SaveGameManager
 {
@@ -16,6 +19,7 @@ namespace TDU2SaveGameManager
     {
         private string defaultSaveFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Eden Games", "Test Drive Unlimited 2"); //
         private string defaultBackupFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
+
         private string userSelectedSaveFolder = Settings.Default.userSelectedSaveFolder;
         private string userSelectedBackupFolder = Settings.Default.userSelectedBackupFolder;
         private string timeFormat = !string.IsNullOrEmpty(Settings.Default.userSelectedTimeFormat)
@@ -24,25 +28,85 @@ namespace TDU2SaveGameManager
         private double settingsMainWindowOpacity = Convert.ToDouble(Settings.Default.OpacityMainWindow);
         private double settingsBGOpacity = Convert.ToDouble(Settings.Default.OpacityBackground);
         public int Run = Settings.Default.runTimes;
+        public int TypingDelay = Settings.Default.Typingdelay;
+        //public bool actionlogdisplay = Settings.Default.ActionLogDisplay;
+        //public bool typinganimationdisplay = Settings.Default.TypingAnimationDisplay;
         public required string ApplicationTitle { get; set; }
         public required string ApplicationRun { get; set; }
-
+        private readonly Queue<string> messageQueue = new Queue<string>();
+        private bool isTyping = false; // Flag to prevent overlapping typing effects
+        public bool ActionLogDisplay
+        {
+            get { return Settings.Default.ActionLogDisplay; }
+            set
+            {
+                Settings.Default.ActionLogDisplay = value;
+                Settings.Default.Save(); // Save the setting
+            }
+        }
+        public bool TypingAnimationDisplay
+        {
+            get { return Settings.Default.TypingAnimationDisplay; }
+            set
+            {
+                Settings.Default.TypingAnimationDisplay = value;
+                Settings.Default.Save(); // Save the setting
+            }
+        }
+        public bool SettingsVisibility
+        {
+            get { return Settings.Default.SettingsVisibility; }
+            set
+            {
+                Settings.Default.SettingsVisibility = value;
+                Settings.Default.Save(); // Save the setting
+            }
+        }
         public ObservableCollection<string> ErrorMessages { get; set; }
 
         public MainWindow()
         {
             ErrorMessages = new ObservableCollection<string>();
             InitializeComponent();
-
             // Bind ErrorListBox to the ObservableCollection for error messages
             ErrorListBox.ItemsSource = ErrorMessages;
-            SettingsGrid.Visibility = Visibility.Collapsed;
+            bool SettingsVis = Settings.Default.SettingsVisibility;
+
+            if (SettingsVis == true) {
+                Settings_ToggleButton.IsChecked = true;
+                SettingsGrid.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Settings_ToggleButton.IsChecked = false;
+                SettingsGrid.Visibility = Visibility.Hidden;
+            }
+            if (ActionLogDisplay == true)
+            {
+                ErrorGroupBox.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ErrorGroupBox.Visibility = Visibility.Hidden;
+            }
+            if (TypingAnimationDisplay == false)
+            {
+                TypingDelay = Settings.Default.Typingdelay = 0;
+                Settings.Default.TypingAnimationDisplay = false;
+                Settings.Default.Save();
+            }
+            else
+            {
+                TypingDelay = Settings.Default.Typingdelay = 25;
+                Settings.Default.TypingAnimationDisplay = true;
+                Settings.Default.Save();
+            }
 
             // Set DataContext for binding properties like ApplicationTitle and ApplicationRun
             DataContext = this;
 
             // Set ApplicationTitle and Run count for displaying in the UI
-            ApplicationTitle = "1.1.2.0";
+            ApplicationTitle = Settings.Default.version;
             Settings.Default.runTimes = ++Run; // Increment run counter
             ApplicationRun = Run.ToString();
             Settings.Default.Save();
@@ -50,61 +114,75 @@ namespace TDU2SaveGameManager
              // Set the slider to reflect the saved value
             mainWindowOpacitySlider.Value = settingsMainWindowOpacity;
             backGroundOpacitySlider.Value = settingsBGOpacity;
+            ActionLogDisplay = Settings.Default.ActionLogDisplay;
             // Initialize paths for save folder and backup folder
             InitializePaths();
+            //ShowSettings();
             LoadFolders();
             LoadBackups();
+            // Attach event handlers
+
         }
+
         private void InitializePaths()
-            {
+        {
+            // Ensure backup directory exists, and check for write permission
             FolderCheck.EnsureDirectoryExists(Settings.Default.userSelectedBackupFolder, ShowError);
             if (!FolderCheck.HasWritePermission(Settings.Default.userSelectedBackupFolder, ShowError))
             {
-                ShowError($"Backup folder does not have write permission: {Settings.Default.userSelectedBackupFolder}");
+                ShowError($"Checking for write permissions on backup folder. Error: Backup folder does not have write permission. {Settings.Default.userSelectedBackupFolder}");
             }
+
+            // Ensure save directory exists, and check for write permission
             FolderCheck.EnsureDirectoryExists(Settings.Default.userSelectedSaveFolder, ShowError);
             if (!FolderCheck.HasWritePermission(Settings.Default.userSelectedSaveFolder, ShowError))
             {
-                ShowError($"Backup folder does not have write permission: {Settings.Default.userSelectedSaveFolder}");
+                ShowError($"Save folder does not have write permission. {Settings.Default.userSelectedSaveFolder}");
             }
-                // Check if user-defined save folder is valid; if not, fallback to default
-            if (string.IsNullOrEmpty(userSelectedSaveFolder) || userSelectedSaveFolder == "null")
+
+            // Handle user-defined or default save folder
+            if (string.IsNullOrEmpty(Settings.Default.userSelectedSaveFolder) || Settings.Default.userSelectedSaveFolder == "null")
             {
-                ShowError($"No user-defined save folder. Default save folder set: {defaultSaveFolder}");
-                Settings.Default.defaultSaveFolder = defaultSaveFolder; // Set default path
+                // Use default save folder if user-defined one is invalid or null
+                ShowError($"Checking for User-Defined Save Folder. No user-defined save folder found. Setting Default save at: {defaultSaveFolder}");
+                Settings.Default.defaultSaveFolder = defaultSaveFolder; // Set the default path in settings
                 SavesLocation.Text = defaultSaveFolder;
             }
             else
             {
-
-                ShowError($"User-defined save folder used: {userSelectedSaveFolder}");
-                SavesLocation.Text = userSelectedSaveFolder;
+                // Use user-defined save folder if valid
+                ShowError($"Checking for User-Defined Save Folder. User-defined save folder found! {Settings.Default.userSelectedSaveFolder}");
+                SavesLocation.Text = Settings.Default.userSelectedSaveFolder;
             }
 
-            // Check if user-defined backup folder is valid; if not, fallback to default
-            if (string.IsNullOrEmpty(userSelectedBackupFolder) || userSelectedBackupFolder == "null")
+            // Handle user-defined or default backup folder
+            if (string.IsNullOrEmpty(Settings.Default.userSelectedBackupFolder) || Settings.Default.userSelectedBackupFolder == "null")
             {
+                // Use default backup folder if user-defined one is invalid or null
                 ShowError($"No user-defined backup folder. Default backup folder set: {defaultBackupFolder}");
-                Settings.Default.defaultBackupFolder = defaultBackupFolder; // Set default path
+                Settings.Default.defaultBackupFolder = defaultBackupFolder; // Set the default path in settings
                 BackupLocation.Text = defaultBackupFolder;
             }
             else
             {
-                ShowError($"User-defined backup folder used: {userSelectedBackupFolder}");
-                SettingsCheck.SaveBackupFolderPath(userSelectedBackupFolder);
-                BackupLocation.Text = userSelectedBackupFolder;
+                // Use user-defined backup folder if valid
+                ShowError($"User-defined backup folder used: {Settings.Default.userSelectedBackupFolder}");
+                SettingsCheck.SaveBackupFolderPath(Settings.Default.userSelectedBackupFolder);
+                BackupLocation.Text = Settings.Default.userSelectedBackupFolder;
             }
+
             // Save the updated settings
             Settings.Default.Save();
         }
-        //private void ShowSettings()
-        //{
-        //    MessageBox.Show($"User Selected Backup Folder: {Settings.Default.userSelectedBackupFolder}\n" +
-        //                    $"Default Backup Folder:{Settings.Default.defaultBackupFolder}\n\n" +
-        //                    $"User Selected Save Folder: {Settings.Default.userSelectedSaveFolder}\n" +
-        //                    $"Default Savegame Folder: {Settings.Default.defaultSaveFolder}.\n\n" +
-        //                    $"Current Time Format: {timeFormat}");
-        //}
+
+        private void ShowSettings()
+        {
+            MessageBox.Show($"User Selected Backup Folder: {Settings.Default.userSelectedBackupFolder}\n" +
+                            $"Default Backup Folder:{Settings.Default.defaultBackupFolder}\n\n" +
+                            $"User Selected Save Folder: {Settings.Default.userSelectedSaveFolder}\n" +
+                            $"Default Savegame Folder: {Settings.Default.defaultSaveFolder}.\n\n" +
+                            $"Current Time Format: {timeFormat}");
+        }
         private void TimeformatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string selectedFormat = "";
@@ -133,7 +211,6 @@ namespace TDU2SaveGameManager
                 ShowError($"Using default format {timeFormat}");
             }
         }
-
 
         private void LoadFolders()
         {
@@ -183,7 +260,6 @@ namespace TDU2SaveGameManager
         }
         private void LoadBackups()
         {
-            //LoadDirectoriesIntoListBox(defaultBPath, FoldersListBox);
             string backupPath;
             if (!Directory.Exists(userSelectedBackupFolder) && !string.IsNullOrEmpty(userSelectedBackupFolder))
             {
@@ -216,7 +292,6 @@ namespace TDU2SaveGameManager
                 BackupsListBox.SelectedIndex = BackupsListBox.Items.Count - 1; // Select the last item
             }
         }
-
  
         private async void BackupButton_Click(object sender, RoutedEventArgs e)
         {
@@ -267,7 +342,6 @@ namespace TDU2SaveGameManager
             }
         }
 
-
         private async void RestoreButton_Click(object sender, RoutedEventArgs e)
         {
             if (BackupsListBox.SelectedItem is string backupFileName)
@@ -311,16 +385,34 @@ namespace TDU2SaveGameManager
                 ShowError("Please select a backup to restore.");
             }
         }
-
         public async void ShowError(string message)
         {
-            ErrorTextBlock.Text = null;
-            //ErrorPanel.Visibility = Visibility.Visible;
-            string formattedMessage = message.Replace(". ", "." + Environment.NewLine);
-            ErrorTextBlock.Text = formattedMessage;
-            ErrorMessages.Add(formattedMessage);
-            //ErrorListBox.ScrollIntoView(ErrorListBox.Items[ErrorListBox.Items.Count - 1]);
+            if (string.IsNullOrEmpty(message)) return;
 
+            // Add the new message to the queue
+            messageQueue.Enqueue(message);
+
+            // Process messages from the queue one at a time
+            await ProcessMessageQueue();
+        }
+        private async Task ProcessMessageQueue()
+        {
+            // If a message is already being typed, return early
+            if (isTyping || messageQueue.Count == 0) return;
+
+            // Set the typing flag
+            isTyping = true;
+
+            // Get the first message from the queue
+            string message = messageQueue.Dequeue();
+
+            // Format the message for multi-line display
+            string formattedMessage = message.Replace(". ", "." + Environment.NewLine)
+                                             .Replace("! ", "! " + Environment.NewLine);
+
+            ErrorMessages.Add(""); // Add an empty message to start typing
+
+            // Scroll to the last item.
             if (ErrorListBox.Items.Count > 4)
             {
                 // Select the last item in the ListBox
@@ -330,34 +422,29 @@ namespace TDU2SaveGameManager
                 var lastItem = ErrorListBox.Items[ErrorListBox.Items.Count - 1];
                 ErrorListBox.ScrollIntoView(lastItem);
 
-                // Check if the ErrorListBox has visual children before accessing
-                if (VisualTreeHelper.GetChildrenCount(ErrorListBox) > 0)
+                // Get the ScrollViewer and scroll to the bottom
+                if (VisualTreeHelper.GetChild(ErrorListBox, 0) is Decorator border && border.Child is ScrollViewer scrollViewer)
                 {
-                    // Get the ScrollViewer from the ListBox's visual tree
-                    if (VisualTreeHelper.GetChild(ErrorListBox, 0) is Decorator border && border.Child is ScrollViewer scrollViewer)
-                    {
-                        scrollViewer.ScrollToBottom();
-                    }
-                    else
-                    {
-                        // Handle case where ScrollViewer or Decorator is not found
-                        //ShowError("Unable to scroll: ScrollViewer not found.");
-                    }
-                }
-                else
-                {
-                    // Handle case where ListBox has no visual children
-                    //ShowError("Unable to scroll: ListBox has no visual children.");
+                    scrollViewer.ScrollToBottom();
                 }
             }
+            // Apply the typing effect
+            int typingdelay = Settings.Default.Typingdelay;
+            await TextAnimation.TypeListBoxTextAsync(formattedMessage, ErrorMessages, TimeSpan.FromMilliseconds(TypingDelay));
 
+            // Delay to keep the message visible
+            await Task.Delay(500);
 
-            //ErrorListBox.ScrollIntoView(ErrorListBox.Items[ErrorListBox.Items.Count - 1]);
-            await Task.Delay(5000);
-            //ErrorPanel.Visibility = Visibility.Collapsed;
-            ErrorTextBlock.Text = null;
+            // Reset the flag after typing is finished
+            isTyping = false;
+
+            // Continue processing the next message in the queue
+            if (messageQueue.Count > 0)
+            {
+                await ProcessMessageQueue();  // Process the next message
+            }
         }
-  
+
         private string GetAssemblyVersion()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -392,44 +479,10 @@ namespace TDU2SaveGameManager
                 BackupLocation.Text = $"({backupPath})";
                 BackupLocation.Text = Settings.Default.userSelectedBackupFolder;
                 BackupLocation.ToolTip = Settings.Default.userSelectedBackupFolder;
+                ShowError("User selected backup folder has changed successfully.");
 
                 // Reload the backups list for the new path
                 LoadBackups();
-            }
-        }
-
-        private void toggle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (toggleOff.Visibility == Visibility.Visible)
-            {
-                toggleOff.Visibility = Visibility.Collapsed;
-                toggleOn.Visibility = Visibility.Visible;
-                SettingsGrid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                toggleOff.Visibility = Visibility.Visible;
-                toggleOn.Visibility = Visibility.Collapsed;
-                SettingsGrid.Visibility = Visibility.Collapsed;
-            }
-        }
-
-
-        private void timeformatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (timeformatComboBox.SelectedItem is ComboBoxItem selectedItem)
-            {
-                // Ensure Content is not null before converting to string
-                string selectedTimeFormat = selectedItem.Content?.ToString() ?? "DefaultFormat";
-
-                ShowError($"The time format has changed to: {selectedTimeFormat}");
-                Settings.Default.userSelectedTimeFormat = selectedTimeFormat;
-                Settings.Default.Save();
-            }
-            else
-            {
-                // Handle the case where no item is selected, if needed
-                ShowError("No time format selected.");
             }
         }
 
@@ -495,6 +548,49 @@ namespace TDU2SaveGameManager
 
         private void SaveGameManager_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            Settings.Default.Save();
+        }
+
+        private void AL_ToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            ErrorGroupBox.Visibility = Visibility.Visible;
+            ActionLogDisplay = true; // Update setting when checked
+
+        }
+
+        private void AL_ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ErrorGroupBox.Visibility = Visibility.Hidden;
+            ActionLogDisplay = false;
+        }
+
+        private void TA_ToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            TypingDelay = 25;
+            TypingAnimationDisplay = true;
+            Settings.Default.Typingdelay = 25;
+            Settings.Default.Save();
+        }
+
+        private void TA_ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TypingDelay = 0;
+            TypingAnimationDisplay = false;
+            Settings.Default.Typingdelay = 0;
+            Settings.Default.Save();
+        }
+
+        private void Settings_ToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            SettingsGrid.Visibility = Visibility.Visible;
+            Settings.Default.SettingsVisibility = true;
+            Settings.Default.Save();
+        }
+
+        private void Settings_ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SettingsGrid.Visibility = Visibility.Hidden;
+            Settings.Default.SettingsVisibility = false;
             Settings.Default.Save();
         }
     }

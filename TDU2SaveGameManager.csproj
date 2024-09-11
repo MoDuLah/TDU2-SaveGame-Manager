@@ -35,12 +35,12 @@
     <None Remove="Images\Save.png" />
     <None Remove="Images\socialFacebook.png" />
     <None Remove="Images\socialGitHub.png" />
-    <None Remove="Images\Switch Off.png" />
-    <None Remove="Images\Switch On.png" />
     <None Remove="Images\TDU2.ico" />
     <None Remove="Images\TDU2.png" />
     <None Remove="Images\ToggleOff.png" />
     <None Remove="Images\ToggleOn.png" />
+    <None Remove="Themes\Images\SwitchOff.png" />
+    <None Remove="Themes\Images\SwitchOn.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -67,8 +67,8 @@
     <Resource Include="Images\Save.png" />
     <Resource Include="Images\socialFacebook.png" />
     <Resource Include="Images\socialGitHub.png" />
-    <Resource Include="Images\Switch Off.png" />
-    <Resource Include="Images\Switch On.png" />
+    <Resource Include="Images\SwitchOn.png" />
+    <Resource Include="Images\SwitchOff.png" />
     <Resource Include="Images\TDU2.ico" />
     <Resource Include="Images\TDU2.png" />
   </ItemGroup>
@@ -76,6 +76,8 @@
   <ItemGroup>
     <Resource Include="Images\ToggleOff.png" />
     <Resource Include="Images\ToggleOn.png" />
+    <Resource Include="Themes\Images\SwitchOff.png" />
+    <Resource Include="Themes\Images\SwitchOn.png" />
   </ItemGroup>
 
   <ItemGroup>

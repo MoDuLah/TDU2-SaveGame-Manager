@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:p="clr-namespace:TDU2SaveGameManager.Properties"
-        xmlns:local="clr-namespace:TDU2SaveGameManager"
+        xmlns:local="clr-namespace:TDU2SaveGameManager.Classes"
         mc:Ignorable="d" FontSize="16" SizeToContent="WidthAndHeight"
         Opacity="{Binding Source={x:Static p:Settings.Default}, Path=OpacityMainWindow, Mode=OneWay}" 
         Title="{Binding ApplicationTitle}" WindowStartupLocation="CenterScreen"
@@ -40,7 +40,7 @@
             </LinearGradientBrush>
         </Border.BorderBrush>
         <Border.Background>
-            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=OpacityBackground, Mode=OneWay}" Stretch="None" TileMode="None" AlignmentY="Top" AlignmentX="Left"/>
+            <ImageBrush ImageSource="/Images/BG.png" Opacity="{Binding Source={x:Static p:Settings.Default}, Path=OpacityBackground, Mode=OneWay}" Stretch="UniformToFill" TileMode="None" AlignmentY="Top" AlignmentX="Left"/>
         </Border.Background>
 
         <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -131,8 +131,56 @@
                 </Hyperlink>
                 </TextBlock>
             </DockPanel>
-            <GroupBox DockPanel.Dock="Bottom" Header="Action log" Margin="5" MaxHeight="300" MaxWidth="1082">
-                <ListBox x:Name="ErrorListBox" Background="{x:Null}" MaxHeight="100" d:ItemsSource="{d:SampleData ItemCount=5}" ScrollViewer.CanContentScroll="True"/>
+            <GroupBox x:Name="ErrorGroupBox" DockPanel.Dock="Bottom" Header="Action log" Margin="5" MaxWidth="1200">
+                <ListBox x:Name="ErrorListBox" Background="Black" MinHeight="150" MaxHeight="150" d:ItemsSource="{d:SampleData ItemCount=25}" ScrollViewer.CanContentScroll="True" BorderBrush="{x:Null}" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <ListBox.Resources>
+                        <!-- Style for ListBox items -->
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="HorizontalContentAlignment" Value="left"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                            <Setter Property="FontSize" Value="14"/>
+                            <Setter Property="Foreground" Value="Green"/>
+                            <Setter Property="Background" Value="Black"/>
+                            <Setter Property="BorderBrush" Value="Black"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Margin" Value="0,0,0,0"/>
+                            <Setter Property="Padding" Value="5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Grid SnapsToDevicePixels="true">
+                                            <Border Name="Border"
+                            Background="#000000"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                                                <ContentPresenter 
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                            </Border>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <!-- Keep the background transparent on selection -->
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="LightGreen"/>
+                                                <!-- Slightly brighter text when selected -->
+                                            </Trigger>
+
+                                            <!-- Keep the background transparent on hover -->
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="LimeGreen"/>
+                                                <!-- Slightly brighter text on hover -->
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.Resources>
+                </ListBox>
             </GroupBox>
             <DockPanel x:Name="SettingsGrid" Width="300" DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Top">
                 <Grid VerticalAlignment="Top">
@@ -155,30 +203,33 @@
                                     <Image Source="/Images/Folder.png" Width="32" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,0,0"/>
                                 </StackPanel>
                             </Button>
-                            <StackPanel>
-                                <GroupBox Header="Main Window Opacity" Margin="5">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Slider x:Name="mainWindowOpacitySlider" Minimum="0.05" LargeChange="0.25" Maximum="1" Width="150" Margin="5" TickFrequency="0.05" TickPlacement="Both"
+                            <GroupBox Header="Main Window Opacity" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Slider x:Name="mainWindowOpacitySlider" Minimum="0.05" LargeChange="0.25" Maximum="1" Width="150" Margin="5" TickFrequency="0.05" TickPlacement="Both"
                                        Value="{Binding Source={x:Static p:Settings.Default}, Path=OpacityMainWindow, Mode=TwoWay}" />
 
-                                        <TextBlock Text="{Binding ElementName=mainWindowOpacitySlider, Path=Value, StringFormat='Opacity: {0:F2}'}" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </GroupBox>
-                                <GroupBox Header="Background Opacity" Margin="5">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Slider x:Name="backGroundOpacitySlider" Minimum="0.05" LargeChange="0.25" Maximum="1" Width="150" Margin="5" TickFrequency="0.05" TickPlacement="Both"
+                                    <TextBlock Text="{Binding ElementName=mainWindowOpacitySlider, Path=Value, StringFormat='Opacity: {0:F2}'}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Background Opacity" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <Slider x:Name="backGroundOpacitySlider" Minimum="0.05" LargeChange="0.25" Maximum="1" Width="150" Margin="5" TickFrequency="0.05" TickPlacement="Both"
                                        Value="{Binding Source={x:Static p:Settings.Default}, Path=OpacityBackground, Mode=TwoWay}"  />
-
-                                        <TextBlock Text="{Binding ElementName=backGroundOpacitySlider, Path=Value, StringFormat='Opacity: {0:F2}'}" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </GroupBox>
-                            </StackPanel>
+                                    <TextBlock Text="{Binding ElementName=backGroundOpacitySlider, Path=Value, StringFormat='Opacity: {0:F2}'}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Toggles" HorizontalContentAlignment="Center">
+                                <StackPanel>
+                                    <ToggleButton x:Name="AL_ToggleButton" Content="Action Log" IsChecked="{Binding ActionLogDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Checked="AL_ToggleButton_Checked" Unchecked="AL_ToggleButton_Unchecked"/>
+                                    <ToggleButton x:Name="TA_ToggleButton" Content="Typing Animation" IsChecked="{Binding TypingAnimationDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Checked="TA_ToggleButton_Checked" Unchecked="TA_ToggleButton_Unchecked"/>
+                                </StackPanel>
+                            </GroupBox>
                         </StackPanel>
                     </GroupBox>
                 </Grid>
             </DockPanel>
             <DockPanel DockPanel.Dock="Right">
-                <Grid x:Name="mainapp">
+                <Grid x:Name="mainapp" MinHeight="476.68">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="Auto" MinWidth="300" />
@@ -201,10 +252,8 @@
                         <StackPanel.Effect>
                             <DropShadowEffect/>
                         </StackPanel.Effect>
-                        <Image x:Name="toggleOff" Source="/Images/ToggleOff.png" VerticalAlignment="Bottom" HorizontalAlignment="Center" MouseLeftButtonDown="toggle_MouseLeftButtonDown"/>
-                        <Image x:Name="toggleOn" Visibility="Collapsed" Source="/Images/ToggleOn.png" VerticalAlignment="Center" HorizontalAlignment="Center" MouseLeftButtonDown="toggle_MouseLeftButtonDown"/>
+                        <ToggleButton x:Name="Settings_ToggleButton" Content="Settings" IsChecked="{Binding SettingsVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinWidth="120" Checked="Settings_ToggleButton_Checked" Unchecked="Settings_ToggleButton_Unchecked"/>
 
-                        <TextBlock Text="Settings" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"/>
                     </StackPanel>
                     <Button x:Name="btnRefresh" Grid.Column="2" Grid.Row="1" Click="btnRefresh_Click" VerticalAlignment="Center" Margin="0,0,0,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
@@ -228,7 +277,8 @@
                                 <TextBlock x:Name="BackupLocation" ToolTip="{Binding Source={x:Static p:Settings.Default}, Path=BackupFolderPath, Mode=OneWay}" Text="{Binding Source={x:Static p:Settings.Default}, Path=backupFolderPath, Mode=OneWay}" Margin="10,0,10,5" FontWeight="Bold" FontSize="10" Foreground="#FFBFBFBF" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" VerticalAlignment="Center"/>
                                 <Image x:Name="browseBackups" MouseLeftButtonDown="browseBackups_MouseLeftButtonDown" Source="/Images/Folder_over.png" Width="24" VerticalAlignment="Center" ToolTip="Browse Backup Folder."/>
                             </StackPanel>
-                                <ListBox x:Name="BackupsListBox" Background="{x:Null}" MinHeight="200" d:ItemsSource="{d:SampleData ItemCount=5}" MaxHeight="200" MaxWidth="350"  ScrollViewer.CanContentScroll="True"/>
+                            <ListBox x:Name="BackupsListBox" Background="{x:Null}" MinHeight="200" d:ItemsSource="{d:SampleData ItemCount=5}" MaxHeight="200" MaxWidth="350"  ScrollViewer.CanContentScroll="True">
+                            </ListBox>
                         </StackPanel>
                     </GroupBox>
                     <StackPanel Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" >
@@ -255,7 +305,7 @@
                         <!-- ProgressBar for showing the progress -->
                         <ProgressBar DockPanel.Dock="Top" x:Name="ProgressBar" Margin="10" Height="20" Visibility="Visible" Minimum="0" Maximum="100" Value="0" HorizontalContentAlignment="Stretch"/>
                         <!-- Error message -->
-                        <TextBlock DockPanel.Dock="left" x:Name="ErrorTextBlock" Text=" " Margin="10"  Visibility="Visible" Foreground="Black" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        <!--<TextBlock DockPanel.Dock="left" x:Name="ErrorTextBlock" Text=" " Margin="10"  Visibility="Visible" Foreground="Black" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"/>-->
                     </DockPanel>
                 </Grid>
             </DockPanel>

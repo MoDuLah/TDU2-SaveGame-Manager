@@ -25,37 +25,13 @@ namespace TDU2SaveGameManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string defaultBackupFolder {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string OpacityMainWindow {
             get {
-                return ((string)(this["defaultBackupFolder"]));
+                return ((string)(this["OpacityMainWindow"]));
             }
             set {
-                this["defaultBackupFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string defaultSaveFolder {
-            get {
-                return ((string)(this["defaultSaveFolder"]));
-            }
-            set {
-                this["defaultSaveFolder"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("yyyy.MM.dd_HH.mm")]
-        public string defaultTimeFormat {
-            get {
-                return ((string)(this["defaultTimeFormat"]));
-            }
-            set {
-                this["defaultTimeFormat"] = value;
+                this["OpacityMainWindow"] = value;
             }
         }
         
@@ -73,25 +49,13 @@ namespace TDU2SaveGameManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public string OpacityMainWindow {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string defaultBackupFolder {
             get {
-                return ((string)(this["OpacityMainWindow"]));
+                return ((string)(this["defaultBackupFolder"]));
             }
             set {
-                this["OpacityMainWindow"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int runTimes {
-            get {
-                return ((int)(this["runTimes"]));
-            }
-            set {
-                this["runTimes"] = value;
+                this["defaultBackupFolder"] = value;
             }
         }
         
@@ -110,6 +74,18 @@ namespace TDU2SaveGameManager.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string defaultSaveFolder {
+            get {
+                return ((string)(this["defaultSaveFolder"]));
+            }
+            set {
+                this["defaultSaveFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string userSelectedTimeFormat {
             get {
                 return ((string)(this["userSelectedTimeFormat"]));
@@ -118,6 +94,31 @@ namespace TDU2SaveGameManager.Properties {
                 this["userSelectedTimeFormat"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.3.0.0")]
+        public string version {
+            get {
+                return ((string)(this["version"]));
+            }
+            set {
+                this["version"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int runTimes {
+            get {
+                return ((int)(this["runTimes"]));
+            }
+            set {
+                this["runTimes"] = value;
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -130,18 +131,64 @@ namespace TDU2SaveGameManager.Properties {
             }
         }
         
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.2.1.0")]
-        public string version {
+        [global::System.Configuration.DefaultSettingValueAttribute("yyyy.MM.dd_HH.mm")]
+        public string defaultTimeFormat {
             get {
-                return ((string)(this["version"]));
+                return ((string)(this["defaultTimeFormat"]));
             }
             set {
-                this["version"] = value;
+                this["defaultTimeFormat"] = value;
             }
         }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SettingsVisibility {
+            get {
+                return ((bool)(this["SettingsVisibility"]));
+            }
+            set {
+                this["SettingsVisibility"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public int Typingdelay {
+            get {
+                return ((int)(this["Typingdelay"]));
+            }
+            set {
+                this["Typingdelay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ActionLogDisplay {
+            get {
+                return ((bool)(this["ActionLogDisplay"]));
+            }
+            set {
+                this["ActionLogDisplay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool TypingAnimationDisplay {
+            get {
+                return ((bool)(this["TypingAnimationDisplay"]));
+            }
+            set {
+                this["TypingAnimationDisplay"] = value;
+            }
+        }
     }
 }
