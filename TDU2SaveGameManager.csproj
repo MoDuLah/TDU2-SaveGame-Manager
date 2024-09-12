@@ -18,6 +18,7 @@
     <Product>TDU2SaveGameManager</Product>
     <Copyright>Copyright © MoDuLah 2024</Copyright>
     <Description>Backup and Restore your saves in an easy way.</Description>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

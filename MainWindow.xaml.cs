@@ -261,11 +261,11 @@ namespace TDU2SaveGameManager
         private void LoadBackups()
         {
             string backupPath;
-            if (!Directory.Exists(userSelectedBackupFolder) && !string.IsNullOrEmpty(userSelectedBackupFolder))
+            if (!Directory.Exists(defaultBackupFolder) && string.IsNullOrEmpty(userSelectedBackupFolder))
             {
-                Directory.CreateDirectory(userSelectedBackupFolder);
-                ShowError($"Backup path created at: {userSelectedBackupFolder}");
-                backupPath = userSelectedBackupFolder;
+                Directory.CreateDirectory(defaultBackupFolder);
+                ShowError($"Backup path created at: {defaultBackupFolder}");
+                backupPath = defaultBackupFolder;
             }
             else
             {
