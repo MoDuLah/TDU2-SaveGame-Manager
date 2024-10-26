@@ -20,7 +20,7 @@ The tool also includes additional features such as progress bars for loading tas
 1. Select the folder containing the savegame files from the list on the left side.
 2. Feel free to customise the backup destination folder or let the program do it for you on a subdirectory in the software folder.
 3. Click the Backup button to create an uncompressed .zip archive of the save game folder in the selected destination.
-4. The backup will be saved in the selected format from the settings (or will use the default) 
+4. The backup will be saved in the selected filename format & folder from the settings (or will use the default).
 
 ### Restore
 1. Choose the backup file from the list.
